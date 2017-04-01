@@ -2,21 +2,21 @@
 
 local assets =
 {
-    Asset("ANIM", "anim/shop_basic.zip"),
-    Asset( "IMAGE", "images/map_icons/shopkeeper.tex" ),
-	Asset( "ATLAS", "images/map_icons/shopkeeper.xml" ),
+    Asset( "ANIM", "anim/shop_basic.zip"),
+    Asset( "IMAGE", "images/map_icons/shopkeepermap.tex" ),
+	Asset( "ATLAS", "images/map_icons/shopkeepermap.xml" ),
 }
 
 
 local function OnTurnOn(inst)
     inst.components.talker:ShutUp()
-    local strings = {"Welcome to my shop.","How may I help you?","I have various things to sell!","Nice to see you again.","","",""}
+    local strings = {"Welcome to my shop.","How may I help you?","I have various things to sell!","Nice to see you again.","","",}
     inst.components.talker:Say(GetRandomItem(strings))
 end
 
 local function OnTurnOff(inst)
     inst.components.talker:ShutUp()
-    local strings = {"Be seeing you...","Pleasure doing business with you...","You're always welcome...","Come back anytime...","",""}
+    local strings = {"Be seeing you...","Pleasure doing business with you...","You're always welcome...","Come back anytime...","","","","","","",}
     inst.components.talker:Say(GetRandomItem(strings))
 end
 
@@ -44,7 +44,7 @@ local function fn()
     inst.AnimState:PlayAnimation("idle", true)    
     
     inst.entity:AddMiniMapEntity()
-    inst.MiniMapEntity:SetIcon("shopkeeper.tex")
+    inst.MiniMapEntity:SetIcon("shopkeepermap.tex")
 
     
 	inst:AddTag("prototyper")
