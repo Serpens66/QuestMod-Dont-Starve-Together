@@ -10,7 +10,7 @@ local assets =
 
 local function OnTurnOn(inst)
     inst.components.talker:ShutUp()
-    local strings = {"Welcome to my shop.","How may I help you?","I have various things to sell!","Nice to see you again.","","",}
+    local strings = {"Welcome to my shop...","Whatever you nneed...","I have various things to sell...","Nice to see you again...","Feel free to look around...","","",}
     inst.components.talker:Say(GetRandomItem(strings))
 end
 
