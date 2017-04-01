@@ -3,7 +3,7 @@ description = "Required for QuestMods.\nThen it adds quests and optional bluepri
 author = "Serpens"
 forumthread = ""
 
-version = "0.8.1"
+version = "0.8.3"
 api_version = 10
 
 dst_compatible = true

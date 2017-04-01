@@ -15,6 +15,8 @@ Assets = {
     Asset("ANIM", "anim/shop_basic.zip"),
     Asset( "IMAGE", "images/map_icons/shopkeeper.tex" ),
 	Asset( "ATLAS", "images/map_icons/shopkeeper.xml" ),
+    Asset( "IMAGE", "images/tab_coin.tex" ),
+    Asset ("ATLAS", "images/tab_coin.xml "),
 }
 
 local _G = GLOBAL
@@ -30,7 +32,7 @@ local questfunctions = GLOBAL.require("scenarios/questfunctions")
 modimport "mymodstrings.lua" 
 modimport "custom_tech_tree.lua"
 AddNewTechTree("SHOPPING",1) -- add new techtree for the shop thing
-local shoptab = AddRecipeTab("Shop", 979, "images/map_icons/shopkeeper.xml", "shopkeeper.tex", nil)	
+local shoptab = AddRecipeTab("Shop", 979, "images/tab_coin.xml", "tab_coin.tex", nil)	
 
 
 
