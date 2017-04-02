@@ -362,6 +362,8 @@ end
 -- talking                (strings)  talking={near={},far={},solved={},wantskip={}}. In the tables near, far, solved, wantskip, you can add strings the questgiver should say when a player goes near him, leaves him, when the quest is solved or to ask if the player really wants to skip the quest. A random string form the list is chosen each time. Of course you can also fill it during your initfn. If you fill them in initfn, better let them empty in global QUESTS.
 -- skippable              (boolean)  true or false (true by default). If according to modsettings quests are skippable and this skippable entry is not false, the quest will be skippable by perfomring three times within 30 seconds the Annoyed emotion. If not "false", the skippable entry will be set to numbers, to count the times you made the Annoyed animation. So to check if a quest is skippable do a ~=false check.
 -- onetime                (boolean)  true or false (nil-> false). If true, this quest at this questgiver can only be solved one time, even it loopquests is active. Eg. if quest is destroy a statue. You can only destroy it once.         
+-- periodicfn             (function) This function will be called periodically with periodictimes, starting after the initfn. You can eg. use it to call CheckQuest. If possible better use an event to check quests or the automatic check when a player goes near the questgiver! But if both is not possible, use this. The api mod will save and load the task automatically and also cancel it, if the quest is solved/skipped.
+-- periodictimes          (float)    1 -> call it every 1 second.
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
 
@@ -413,23 +415,12 @@ AddPrefabPostInit("world", function(world)
     if not GLOBAL.TheNet:GetIsServer() then 
         return
     end
-    
-    -- world:ListenForEvent("QuestmodEventFn",OnEventFn)
-    
-    -- local x,y,z = world.components.playerspawner.GetAnySpawnPoint()
-    -- local spawnpointpos = GLOBAL.Vector3(x ,y ,z )
-    -- world:DoTaskInTime(0.2,function(world) questfunctions.SpawnPrefabAtLandPlotNearInst("pighouse",spawnpointpos,15,0,15,1,3,3) end) # test von questfunctions -> soll aber eh nicht
 end)
 
 
 
 
 AddPrefabPostInit("pigking",function(inst)
-    -- if inst.components.talker==nil then -- only add it if it was not added by another questmod before
-        -- inst:AddComponent("talker")
-        -- inst.components.talker.offset = GLOBAL.Vector3(0, -500, 0) -- default is Vector3(0, -400, 0)
-        -- inst.components.talker.fontsize = 40 -- 35 ist default
-    -- end
     if not GLOBAL.TheNet:GetIsServer() then 
         return
     end

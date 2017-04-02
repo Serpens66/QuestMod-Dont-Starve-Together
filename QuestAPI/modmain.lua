@@ -26,8 +26,7 @@ GLOBAL.TUNING.QUEST_SHOPMODE = GetModConfigData("shopkeeperstuff")
 GLOBAL.TUNING.QUEST_NEWONE = GetModConfigData("newquest") -- x * daytime has to pass, until getting a new quest
 GLOBAL.TUNING.QUEST_LOOP = GetModConfigData("loopquests")
 
-
-local questfunctions = GLOBAL.require("scenarios/questfunctions")
+GLOBAL.TUNING.questfunctions = GLOBAL.require("scenarios/questfunctions") -- make them global, so also other mods can access it
 
 modimport "mymodstrings.lua" 
 modimport "custom_tech_tree.lua"
@@ -311,7 +310,7 @@ local function Doinitquests(world)
     local spawnpointpos = GLOBAL.Vector3(x ,y ,z )
     local keepers = TheSim:FindEntities(x, y, z, 20, nil, nil, {"shopkeeper"})
     if not _G.next(keepers) and (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- if there is no keeper, but there should be one, create one.
-        questfunctions.SpawnPrefabAtLandPlotNearInst("shopkeeper",spawnpointpos,15,0,15,1,3,3)
+        GLOBAL.TUNING.questfunctions.SpawnPrefabAtLandPlotNearInst("shopkeeper",spawnpointpos,15,0,15,1,3,3)
     elseif _G.next(keepers) and not (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- remove them if they are not needed
         for i,keeper in pairs(keepers) do
             keeper.Remove()
@@ -441,8 +440,8 @@ end)
 -- chance to find blueprints when slow picking/working something e.g grass
 local function OnPicked(inst)
     if math.random() < GetModConfigData("findcoins") then
-        questfunctions.SpawnPuff(inst)
-        questfunctions.SpawnDrop(inst,"coin") -- since there is no lootdropper when slow picking something, we also add it here
+        GLOBAL.TUNING.questfunctions.SpawnPuff(inst)
+        GLOBAL.TUNING.questfunctions.SpawnDrop(inst,"coin") -- since there is no lootdropper when slow picking something, we also add it here
     end
     if GLOBAL.TUNING.QUEST_BLUEPRINTMODE then -- we have to define what blueprint, which is not easy possible with lootdropper, so we assign them only to slow pickable things
         local blueprint = nil
@@ -451,12 +450,12 @@ local function OnPicked(inst)
             dospawn = true
         end
         if dospawn then
-            questfunctions.SpawnPuff(inst)
-            blueprint = questfunctions.GetNewBlueprints(questname,"",1)[1] -- a list with one entry, calling this function will remove blueprints from list, so only call this, if all of them will be spawned!
+            GLOBAL.TUNING.questfunctions.SpawnPuff(inst)
+            blueprint = GLOBAL.TUNING.questfunctions.GetNewBlueprints(questname,"",1)[1] -- a list with one entry, calling this function will remove blueprints from list, so only call this, if all of them will be spawned!
             if blueprint then
-                questfunctions.SpawnDrop(inst,blueprint)
+                GLOBAL.TUNING.questfunctions.SpawnDrop(inst,blueprint)
             else
-                questfunctions.SpawnDrop(inst,"coin")
+                GLOBAL.TUNING.questfunctions.SpawnDrop(inst,"coin")
             end
         end
     end
@@ -470,10 +469,10 @@ local function OnWorked(inst,worker,workleft) -- is called for every hit... so i
             dospawn = true
         end
         if dospawn and inst and inst:IsValid() then
-            questfunctions.SpawnPuff(inst)
-            blueprint = questfunctions.GetNewBlueprints(questname,"",1)[1] -- a list with one entry, calling this function will remove blueprints from list, so only call this, if all of them will be spawned!
+            GLOBAL.TUNING.questfunctions.SpawnPuff(inst)
+            blueprint = GLOBAL.TUNING.questfunctions.GetNewBlueprints(questname,"",1)[1] -- a list with one entry, calling this function will remove blueprints from list, so only call this, if all of them will be spawned!
             if blueprint then
-                questfunctions.SpawnDrop(inst,blueprint)
+                GLOBAL.TUNING.questfunctions.SpawnDrop(inst,blueprint)
             end
         end
     end -- coins are found in loot of the worked object
@@ -519,7 +518,7 @@ AddPrefabPostInit("blueprint",function(inst)
     end
 end)
 
-local function GetDifferenceofTables(a,b) 
+local function GetDifferenceofTables(a,b,prefab) 
     local diff = {}
     -- local a = quests
     -- local b = questlistsave
@@ -559,20 +558,20 @@ local function GetDifferenceofTables(a,b)
         end
         
         for namea,ia in pairs(counta) do
-            print("QUESTS contains: "..GLOBAL.tostring(namea).." : "..GLOBAL.tostring(ia))
+            print(GLOBAL.tostring(prefab).." QUESTS contains: "..GLOBAL.tostring(namea).." : "..GLOBAL.tostring(ia))
             for nameb,ib in pairs(countb) do
                 if namea==nameb then
-                    print("questlistsave contains: "..GLOBAL.tostring(nameb).." : "..GLOBAL.tostring(ib))
+                    print(GLOBAL.tostring(prefab).." questlistsave contains: "..GLOBAL.tostring(nameb).." : "..GLOBAL.tostring(ib))
                     diff[namea] = ia - ib
                 end
             end
         end
     else
-        print("FEHLER a oder b ist keine table?!")
+        print(GLOBAL.tostring(prefab).." FEHLER a oder b ist keine table?!")
     end
     print("--")
     for k,v in pairs(diff) do
-        print("DIFF name "..GLOBAL.tostring(k).." : "..GLOBAL.tostring(v))
+        print(GLOBAL.tostring(prefab).." DIFF name "..GLOBAL.tostring(k).." : "..GLOBAL.tostring(v))
     end
     print("--")
     
@@ -582,7 +581,7 @@ end
 
 -- das was diff returned muss dann auf die questlistsave angewandt werden
 local function CheckNewQuests(inst) -- inst is the questgiver
-    local diff = GetDifferenceofTables(GLOBAL.TUNING.QUESTSMOD.QUESTS,inst.components.questgiver.questlistSave) -- find out which quests we have to add/remove to/from questlist
+    local diff = GetDifferenceofTables(GLOBAL.TUNING.QUESTSMOD.QUESTS,inst.components.questgiver.questlistSave,inst.prefab) -- find out which quests we have to add/remove to/from questlist
     local diffcopy = GLOBAL.deepcopy(diff) -- this copy is used to also adjust questlist accordingly
     for k,v in pairs(inst.components.questgiver.questlistSave) do
         if diff[v.questname] ~= nil and diff[v.questname]~=0 then
@@ -640,49 +639,67 @@ local function OnDirtyEventQuestRGB(inst) -- function called for client, when rg
     inst.components.talker.colour = GLOBAL.Vector3(inst["mynetvarQuestsR"]:value()/255, inst["mynetvarQuestsG"]:value()/255, inst["mynetvarQuestsB"]:value()/255)
 end
 
-AddPrefabPostInit("pigking",function(inst)
-    if inst.components.talker==nil then
-        inst:AddComponent("talker")
+local questgivers = {} -- get all different questgiver prefabs, to add them to addprefapostinit to add quests to them
+if GLOBAL.TUNING.QUESTSMOD and type(GLOBAL.TUNING.QUESTSMOD.QUESTS)=="table" then
+    for k,quest in pairs(GLOBAL.TUNING.QUESTSMOD.QUESTS) do
+        if quest.questgiver and not GLOBAL.table.contains(questgivers,quest.questgiver) then
+            table.insert(questgivers,quest.questgiver)
+        end
     end
-    inst.components.talker.offset = GLOBAL.Vector3(0, -500, 0) -- default is Vector3(0, -400, 0)
-    inst.components.talker.fontsize = 40 -- 35 ist default
-    inst.components.talker.colour = GLOBAL.Vector3(1, 1, 1) -- talking colour when no quest -- here it must be a vector ={x=0.25,y=.5,z=0.4}, but in the Say() function is must look like this {0.25,0.5,0.4,1}
-    
-    -- to be able to change colour also for clients we have to use netvars I fear... also with the talker:Say() function, the colour is only valid for host, at least if we only call it for host
-    inst["mynetvarQuestsR"] = GLOBAL.net_byte(inst.GUID, "QuestsRNetStuff", "DirtyEventQuestsR") 
-    inst["mynetvarQuestsR"]:set(255)
-    inst["mynetvarQuestsG"] = GLOBAL.net_byte(inst.GUID, "QuestsGNetStuff", "DirtyEventQuestsG") 
-    inst["mynetvarQuestsG"]:set(255)
-    inst["mynetvarQuestsB"] = GLOBAL.net_byte(inst.GUID, "QuestsBNetStuff", "DirtyEventQuestsB") 
-    inst["mynetvarQuestsB"]:set(255)
-    inst:ListenForEvent("DirtyEventQuestsR", OnDirtyEventQuestRGB)
-    inst:ListenForEvent("DirtyEventQuestsG", OnDirtyEventQuestRGB)
-    inst:ListenForEvent("DirtyEventQuestsB", OnDirtyEventQuestRGB)
-    
-    if not GLOBAL.TheNet:GetIsServer() then 
-        return
-    end
-    if inst.components.questgiver==nil then -- only add it if it was not added by another questmod before
-        inst:AddComponent("questgiver")
-        inst:AddTag("questgiver")
-        table.insert(GLOBAL.TUNING.QUESTSMOD.GIVERS,inst)
-    end
-    if GLOBAL.TUNING.QUESTSMOD and type(GLOBAL.TUNING.QUESTSMOD.QUESTS)=="table" then
-        inst:DoTaskInTime(3,function(inst) 
-            
-            CheckNewQuests(inst) -- find out if quests were added or removed and adjust questlist of questgiver accordingly, if the quest have pigking as questgiver 
-            
-            -- after init and onload of component, start next quest if necessary. Also call it if questname~=nil, cause maybe we have to remove this quest or fill the empty questlist (if someone enabled loop now)
-            if inst.components.questgiver.nextquesttasktimeleft then -- when saved, the task is transformed into the remaining time
-                inst.components.questgiver.nextquesttask = inst:DoTaskInTime(inst.components.questgiver.nextquesttasktimeleft+3,function(inst) inst.components.questgiver:StartNextQuest() end) -- start the task again
-            elseif not inst.components.questgiver.nextquesttasktimeleft then 
-                inst:DoTaskInTime(4,function(inst) inst.components.questgiver:StartNextQuest() end) -- start next quest AFTER we filled the questlist
-            end
-            print("Questanzahl in questlist: "..GLOBAL.tostring(#inst.components.questgiver.questlist))
-       end)
-    end
-end)
+end
 
+for i,giverprefab in ipairs(questgivers) do
+    AddPrefabPostInit(giverprefab,function(inst)
+        
+        if inst.components.talker==nil then -- if not added already, add it with some default settings
+            inst:AddComponent("talker")
+            inst.components.talker.offset = GLOBAL.Vector3(0, -500, 0) -- default is Vector3(0, -400, 0)
+            inst.components.talker.fontsize = 40 -- 35 ist default
+            inst.components.talker.colour = GLOBAL.Vector3(1, 1, 1) -- talking colour when no quest -- here it must be a vector ={x=0.25,y=.5,z=0.4}, but in the Say() function is must look like this {0.25,0.5,0.4,1}
+        end
+        if giverprefab=="pigking" then -- if pigking, some good settings for pigking .. if another questgiver, then you should add talker and settings in your questmod to the questgiver
+            inst.components.talker.offset = GLOBAL.Vector3(0, -500, 0) -- default is Vector3(0, -400, 0)
+            inst.components.talker.fontsize = 40 -- 35 ist default
+            inst.components.talker.colour = GLOBAL.Vector3(1, 1, 1) -- talking colour when no quest -- here it must be a vector ={x=0.25,y=.5,z=0.4}, but in the Say() function is must look like this {0.25,0.5,0.4,1}
+        end
+        
+        -- to be able to change colour also for clients we have to use netvars I fear... also with the talker:Say() function, the colour is only valid for host, at least if we only call it for host
+        inst["mynetvarQuestsR"] = GLOBAL.net_byte(inst.GUID, "QuestsRNetStuff", "DirtyEventQuestsR") 
+        inst["mynetvarQuestsR"]:set(255)
+        inst["mynetvarQuestsG"] = GLOBAL.net_byte(inst.GUID, "QuestsGNetStuff", "DirtyEventQuestsG") 
+        inst["mynetvarQuestsG"]:set(255)
+        inst["mynetvarQuestsB"] = GLOBAL.net_byte(inst.GUID, "QuestsBNetStuff", "DirtyEventQuestsB") 
+        inst["mynetvarQuestsB"]:set(255)
+        inst:ListenForEvent("DirtyEventQuestsR", OnDirtyEventQuestRGB)
+        inst:ListenForEvent("DirtyEventQuestsG", OnDirtyEventQuestRGB)
+        inst:ListenForEvent("DirtyEventQuestsB", OnDirtyEventQuestRGB)
+        
+        if not GLOBAL.TheNet:GetIsServer() then -- if client, return here
+            return
+        end
+        if inst.components.questgiver==nil then -- only add it if it was not added by another questmod before
+            inst:AddComponent("questgiver")
+            inst:AddTag("questgiver")
+        end
+        if not GLOBAL.table.contains(GLOBAL.TUNING.QUESTSMOD.GIVERS,inst) then
+            table.insert(GLOBAL.TUNING.QUESTSMOD.GIVERS,inst)
+        end
+        if GLOBAL.TUNING.QUESTSMOD and type(GLOBAL.TUNING.QUESTSMOD.QUESTS)=="table" then
+            inst:DoTaskInTime(3,function(inst) 
+                
+                CheckNewQuests(inst) -- find out if quests were added or removed and adjust questlist of questgiver accordingly, if the quest have pigking as questgiver 
+                
+                -- after init and onload of component, start next quest if necessary. Also call it if questname~=nil, cause maybe we have to remove this quest or fill the empty questlist (if someone enabled loop now)
+                if inst.components.questgiver.nextquesttasktimeleft then -- when saved, the task is transformed into the remaining time
+                    inst.components.questgiver.nextquesttask = inst:DoTaskInTime(inst.components.questgiver.nextquesttasktimeleft+3,function(inst) inst.components.questgiver:StartNextQuest() end) -- start the task again
+                elseif not inst.components.questgiver.nextquesttasktimeleft then 
+                    inst:DoTaskInTime(4,function(inst) inst.components.questgiver:StartNextQuest() end) -- start next quest AFTER we filled the questlist
+                end
+                print(GLOBAL.tostring(inst.prefab)..": Questanzahl in questlist: "..GLOBAL.tostring(#inst.components.questgiver.questlist))
+           end)
+        end
+    end)
+end
 
 AddMinimapAtlas("images/map_icons/shopkeepermap.xml")
 

@@ -79,8 +79,6 @@ local function OnTargetLeft(self)
 end
 
 
-questfunctions = require("scenarios/questfunctions")
-
 -- quest stuff
 
 local function PlaySpecialAnimation(inst) -- plays animation depending on what inst we have
@@ -111,7 +109,7 @@ local function GiveQuestLoot(questkeeper,questname,player) -- player is only nee
         -- self.animationfn will be nil after loading if it was a function, cause a function cannot be saved. But a string can of course.
         -- TheWorld:PushEvent("QuestmodEventFn",{func="animationfn",giver=questkeeper,questname=questname}) -- call the check function in questmod, if it does exist.
         for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do 
-            if quest.questname == questkeeper.components.questgiver.questname then
+            if quest.questname == questkeeper.components.questgiver.questname and questkeeper.prefab==quest.questgiver then
                 if type(quest.animationfn)=="function" then
                     quest.animationfn(questkeeper)
                     break -- even if there are more entries with this questname, make the fn of course only once -> quests with same name should always also have same functions!
@@ -125,14 +123,14 @@ local function GiveQuestLoot(questkeeper,questname,player) -- player is only nee
     if questkeeper.components.questgiver.rewardfn=="default" then
         -- check if there are important blueprints left, if not then just random reward
         if TUNING.QUEST_BLUEPRINTMODE then -- mostly blueprints and coins
-            loot = questfunctions.GetNewBlueprints(questname,questkeeper.components.questgiver.customrewardblueprints,num)
+            loot = TUNING.questfunctions.GetNewBlueprints(questname,questkeeper.components.questgiver.customrewardblueprints,num)
             if not next(loot) then -- if no blueprints are left, give more coins
                 if TUNING.QUEST_SHOPMODE then
                     for i=1,math.ceil(math.random()*5+5*num) do
                         table.insert(loot,"coin") 
                     end
                 else -- if no blueprints left and no shop active, we dont need more coins, so give a items
-                    loot = questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num)
+                    loot = TUNING.questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num)
                 end
             end
             if TUNING.QUEST_SHOPMODE then
@@ -145,24 +143,24 @@ local function GiveQuestLoot(questkeeper,questname,player) -- player is only nee
                 end
                 num = num - 2
                 if num <=0 then num = 1 end -- also add a small amount of items
-                loot = JoinArrays(loot,questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num))
+                loot = JoinArrays(loot,TUNING.questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num))
             end
         elseif not TUNING.QUEST_BLUEPRINTMODE and TUNING.QUEST_SHOPMODE then -- mostly coins
             for i=1,math.ceil(math.random()*10+10*num) do -- num is 1 to 5
                 table.insert(loot,"coin") 
             end
         elseif not TUNING.QUEST_BLUEPRINTMODE and not TUNING.QUEST_SHOPMODE then -- only items
-            loot = questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num)
+            loot = TUNING.questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num)
         end
     elseif questkeeper.components.questgiver.rewardfn=="items" then
-        loot = questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num)
+        loot = TUNING.questfunctions.GetRewardItems(questname,questkeeper.components.questgiver.customrewarditems,num)
     elseif questkeeper.components.questgiver.rewardfn=="blueprints" then
-        loot = questfunctions.GetNewBlueprints(questname,questkeeper.components.questgiver.customrewardblueprints,num)
+        loot = TUNING.questfunctions.GetNewBlueprints(questname,questkeeper.components.questgiver.customrewardblueprints,num)
     else
         -- self.rewardfn will be nil after loading if it was a function, cause a function cannot be saved. But a string can of course.
         -- TheWorld:PushEvent("QuestmodEventFn",{func="rewardfn",giver=questkeeper,questname=questname,player=player,num=num}) -- call the check function in questmod, if it does exist.  -- player can be nil. But if it is not, it will be the player that went near the questgiver
         for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do 
-            if quest.questname == questkeeper.components.questgiver.questname then
+            if quest.questname == questkeeper.components.questgiver.questname and questkeeper.prefab==quest.questgiver then
                 if type(quest.rewardfn)=="function" then
                     quest.rewardfn(questkeeper,player,num)
                     break -- even if there are more entries with this questname, make the fn of course only once -> quests with same name should always also have same functions!
@@ -172,24 +170,23 @@ local function GiveQuestLoot(questkeeper,questname,player) -- player is only nee
     end
     if questkeeper.components and questkeeper.components.lootdropper then 
         local timer = nil
+        local pt = questkeeper:GetPosition() -- spawn around questkeeper
         for key,lootprefab in ipairs(loot) do
             timer = type(key)=="number" and key/15 or 0.1 -- not spawn them all at same time, but with very small delay each
-            questkeeper:DoTaskInTime(timer,function(questkeeper) questkeeper.components.lootdropper:SpawnLootPrefab(lootprefab, questkeeper:GetPosition()) end)
+            questkeeper:DoTaskInTime(timer,function(questkeeper) questkeeper.components.lootdropper:SpawnLootPrefab(lootprefab, pt) end)
         end
     else
         if next(loot) then
-            questfunctions.SpawnPuff(questkeeper)
+            TUNING.questfunctions.SpawnPuff(questkeeper)
         end
         questkeeper:DoTaskInTime(20/30, function(questkeeper) -- smal delay, compatible to pigking animation
             for key,lootprefab in pairs(loot) do
-                questfunctions.SpawnDrop(questkeeper, lootprefab,player)
+                TUNING.questfunctions.SpawnDrop(questkeeper, lootprefab,player)
             end
         end)
     end
     
-    
     if questkeeper.components and questkeeper.components.questgiver then 
-        questkeeper.components.questgiver.questname = nil
         questkeeper.components.questgiver:QuestResett()
     end -- make it a normal shopkeeper without a quest
 end
@@ -222,7 +219,7 @@ local function CheckIfQuestFinished(inst) -- inst is questgiver
             -- self.checkfn will be nil after loading if it was a function, cause a function cannot be saved. But a string can of course.
             -- TheWorld:PushEvent("QuestmodEventFn",{func="checkfn",giver=inst,questname=inst.components.questgiver.questname}) -- call the check function in questmod, if it does exist. This should also set it to finished.
             for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do 
-                if quest.questname == inst.components.questgiver.questname then
+                if quest.questname == inst.components.questgiver.questname and inst.prefab==quest.questgiver then
                     if type(quest.checkfn)=="function" then
                         quest.checkfn(inst)
                         break -- even if there are more entries with this questname, make the fn of course only once -> quests with same name should always also have same functions!
@@ -318,7 +315,7 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     self.checkfn = nil
     self.customrewarditems = {}
     self.customrewardblueprints = {}
-    self.initfn = nil
+    self.initfn = nil -- functions can not be stored, but it can also be a string "default", so we have to save it in self
     self.rewardfn = nil
     self.animationfn = nil
     self.customstore = nil
@@ -328,6 +325,9 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     self.nextquesttasktimeleft = nil
     self.onetime = nil
     self.solvedonetimequests = {}
+    self.periodictimes = 5
+    self.periodictask = nil
+    -- endfn and periodicfn are always functions and therefore can not be saved. only accessable via global QUESTS.
 
     
     self.questlist = {} -- all the quests the questgiver can give, but only one quest active at the time. {{"questname",questobject},...} . this list will get empty
@@ -356,6 +356,16 @@ function QuestGiver:CheckQuests()
 end
 
 function QuestGiver:QuestResett()
+    
+    for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do 
+        if quest.questname == self.questname and self.inst.prefab==quest.questgiver then
+            if type(quest.endfn)=="function" then
+                quest.endfn(self.inst)
+                break -- even if there are more entries with this questname, make the fn of course only once -> quests with same name should always also have same functions!
+            end
+        end
+    end
+    
     self.questname = nil
     self.queststatus = "open"
     self.questdiff = nil -- difficulty -> higher reward, can be 1 2 or 3. 3 is the highest reward
@@ -373,9 +383,14 @@ function QuestGiver:QuestResett()
     self.talking = {near={},far={},solved={},wantskip={},skipped={}}
     self.skippable = true
     self.onetime = nil
+    self.periodictimes = 5
+    if self.periodictask then
+        self.periodictask:Cancel()
+    end
+    self.periodictask = nil
 end 
 
-function QuestGiver:SkipQuest() -- skip the quest
+function QuestGiver:SkipQuest() -- skip the quest   
     self.inst.components.questgiver:QuestResett() -- start next quest in half of the normal waiting time
     self.inst.components.questgiver.nextquesttask = self.inst:DoTaskInTime(((TUNING.QUEST_NEWONE * TUNING.TOTAL_DAY_TIME)/2) + 5 ,function(inst) inst.components.questgiver:StartNextQuest() end) -- next day there will be the next quest (or when world is loaded)  
 end
@@ -472,6 +487,7 @@ function QuestGiver:OnSave()
     data.skippable = self.skippable
     data.onetime = self.onetime
     data.solvedonetimequests = self.solvedonetimequests
+    data.periodictimes = self.periodictimes
     if self.nextquesttask~=nil then 
         data.nextquesttasktimeleft = GetTaskRemaining(self.nextquesttask) -- save the remaining time instead of the task itself
     elseif self.nextquesttasktimeleft~=nil then
@@ -513,6 +529,16 @@ function QuestGiver:OnLoad(data)
     self.nextquesttasktimeleft = data and data.nextquesttasktimeleft or nil
     self.onetime = data and data.onetime or nil
     self.solvedonetimequests = data and data.solvedonetimequests or {}
+    self.periodictimes = data and data.periodictimes or 5
+    
+    for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do -- start period task again
+        if quest.questname == self.questname and self.inst.prefab==quest.questgiver then
+            if type(quest.periodicfn)=="function" and self.periodictimes then
+                self.periodictask = self.inst:DoPeriodicTask(self.periodictimes, function(inst) quest.periodicfn(inst) end)
+                break -- even if there are more entries with this questname, make the initfn of course only once
+            end
+        end
+    end
     
     if self.inst["mynetvarQuestsR"] and self.inst["mynetvarQuestsG"] and self.inst["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
         if self.questdiff == 1 then
@@ -612,19 +638,20 @@ function QuestGiver:InitializeQuest(quest)
     self.checkfn = quest.checkfn
     self.talknear = quest.talknear
     self.talkfar = quest.talkfar
-    self.initfn = quest.initfn
+    self.initfn = quest.initfn -- can also be string, so save it although functions cannot be saved
     self.rewardfn = quest.rewardfn
     self.animationfn = quest.animationfn
     self.customstore = deepcopy(quest.customstore) -- in case it is a table. Even if it is a string/nil, deepcopy wont throw error
     self.talking = deepcopy(quest.talking) -- without deepcopy, they are set the same object, which is bad...
     self.skippable = quest.skippable
     self.onetime = quest.onetime
+    self.periodictimes = quest.periodictimes or 5
     
     -- self.initfn(self.inst) -- the questgiver
     -- TheWorld:PushEvent("QuestmodEventFn",{func="initfn",giver=self.inst,questname=self.questname})
     
     for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do 
-        if quest.questname == self.questname then
+        if quest.questname == self.questname and self.inst.prefab==quest.questgiver then
             if type(quest.initfn)=="function" then
                 quest.initfn(self.inst)
                 break -- even if there are more entries with this questname, make the initfn of course only once
@@ -658,6 +685,15 @@ function QuestGiver:InitializeQuest(quest)
             self.inst["mynetvarQuestsR"]:set(153)
             self.inst["mynetvarQuestsG"]:set(0)
             self.inst["mynetvarQuestsB"]:set(0)
+        end
+    end
+    
+    for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do 
+        if quest.questname == self.questname and self.inst.prefab==quest.questgiver then
+            if type(quest.periodicfn)=="function" and self.periodictimes then
+                self.periodictask = self.inst:DoPeriodicTask(self.periodictimes, function(inst) quest.periodicfn(inst) end)
+                break -- even if there are more entries with this questname, make the initfn of course only once
+            end
         end
     end
     
@@ -701,7 +737,7 @@ function QuestGiver:StartNextQuest()
     if self.questname~=nil then -- check if tha actual quest is still in global QUESTS. If not, remove it and get another quest
         local drin = false
         for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do
-            if quest.questname==self.questname then
+            if quest.questname==self.questname and self.inst.prefab==quest.questgiver then
                 drin = true
             end
         end
@@ -719,7 +755,7 @@ function QuestGiver:StartNextQuest()
     end
     
     if self.questname==nil and next(self.questlist) then -- if there is no current quest and there is another quest in list
-        local quest = questfunctions.MyPickSome(1, self.questlist)[1] -- pick and remove one quest.
+        local quest = TUNING.questfunctions.MyPickSome(1, self.questlist)[1] -- pick and remove one quest.
         print("hier startnextquest "..tostring(quest.questname).." "..tostring(quest.questobject))
         self:InitializeQuest(quest)
     end
