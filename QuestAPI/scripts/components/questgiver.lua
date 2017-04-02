@@ -101,7 +101,10 @@ local function GiveQuestLoot(questkeeper,questname,player) -- player is only nee
     local defaultstrings = STRINGS.QUESTSMOD.DEFAULTSOLVED -- standard solved strings
     local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.solved)=="table" and next(questkeeper.components.questgiver.talking.solved) and questkeeper.components.questgiver.talking.solved or defaultstrings)
     if str~="" then
-        questkeeper.components.talker:Say(string.upper(str))--,nil,nil,nil,nil,questkeeper.components.questgiver.textcolour)
+        if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
+            str = string.upper(str)
+        end
+        questkeeper.components.talker:Say(str)--,nil,nil,nil,nil,questkeeper.components.questgiver.textcolour)
     end
     if questkeeper.components.questgiver.animationfn=="default" then
         PlaySpecialAnimation(questkeeper)
@@ -275,7 +278,10 @@ local function TalkNear(questkeeper,player) -- give hints about "quests" or give
             end
         end
         if str~="" then
-            questkeeper.components.talker:Say(string.upper(str))--,nil,nil,nil,nil,questkeeper.components.questgiver.textcolour)
+            if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
+                str = string.upper(str)
+            end
+            questkeeper.components.talker:Say(str)--,nil,nil,nil,nil,questkeeper.components.questgiver.textcolour)
             if questkeeper.prefab=="pigking" then-- and math.random()>0.3 then 
                 questkeeper.SoundEmitter:PlaySound("dontstarve/pig/grunt")
             end
@@ -295,7 +301,10 @@ local function TalkFar(questkeeper) -- player is unknown
     if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" and ((questkeeper.prefab=="pigking" and questkeeper.components.trader:GetDebugString()=="true") or questkeeper.prefab~="pigking") then
         local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.far)=="table" and next(questkeeper.components.questgiver.talking.far) and questkeeper.components.questgiver.talking.far or defaultstrings)
         if str~="" then
-            questkeeper.components.talker:Say(string.upper(str))--,nil,nil,nil,nil,questkeeper.components.questgiver.textcolour)
+            if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
+                str = string.upper(str)
+            end
+            questkeeper.components.talker:Say(str)--,nil,nil,nil,nil,questkeeper.components.questgiver.textcolour)
         end
     end
 end
@@ -403,7 +412,10 @@ function QuestGiver:WantSkipQuest() -- quest if quest skipping is allowed and co
             local defaultstrings = STRINGS.QUESTSMOD.DEFAULTWANTSKIP
             local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.wantskip)=="table" and next(questkeeper.components.questgiver.talking.wantskip) and questkeeper.components.questgiver.talking.wantskip or defaultstrings)
             if str~="" then
-                questkeeper.components.talker:Say(string.upper(str))--,nil,nil,nil,nil,self.textcolour)
+                if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
+                    str = string.upper(str)
+                end
+                questkeeper.components.talker:Say(str)--,nil,nil,nil,nil,self.textcolour)
             end
             if self.inst.unskipptask~=nil then
                 self.inst.unskipptask:Cancel() -- cancel all previous tasks
@@ -414,7 +426,10 @@ function QuestGiver:WantSkipQuest() -- quest if quest skipping is allowed and co
             local defaultstrings = STRINGS.QUESTSMOD.DEFAULTSKIPPED
             local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.skipped)=="table" and next(questkeeper.components.questgiver.talking.skipped) and questkeeper.components.questgiver.talking.skipped or defaultstrings)
             if str~="" then
-                questkeeper.components.talker:Say(string.upper(str))--,nil,nil,nil,nil,self.textcolour)
+                if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
+                    str = string.upper(str)
+                end
+                questkeeper.components.talker:Say(str)--,nil,nil,nil,nil,self.textcolour)
             end
             self.inst.components.questgiver:SkipQuest()
         else
