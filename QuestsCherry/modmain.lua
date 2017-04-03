@@ -15,9 +15,12 @@ Assets = {
     Asset( "ANIM", "anim/skin_collector.zip"),
     Asset( "IMAGE", "images/map_icons/skin_collector.tex" ),
     Asset( "ATLAS", "images/map_icons/skin_collector.xml" ),
+    Asset("SOUNDPACKAGE", "sound/skin_collector.fev"),    
+    Asset("SOUND", "sound/skin_collector.fsb"),
 }
 
 
+RemapSoundEvent( "dontstarve/characters/skincollector/talk_LP", "skin_collector/sound/talk_LP" )
 
 -- store all questgivers in GLOBAL.TUNING.QUESTSMOD.GIVERS to loop through them and find the one with the quest you are searching for. 
 -- when only searching for a questgiver in a specifc range, you can also use instead: TheSim:FindEntities(x, y, z, 100, nil, nil, {"questgiver"})
@@ -57,19 +60,28 @@ end
 -- problem here is, that there seems to be no event for sleeping (only "sleep" in sense of "pause"=offscreen)
 -- so we need another solution. The only one I can imagine is a PeriodicTask which calles CheckQuests every few seconds. So I added periodicfn to api mod
 local function PeriodicSleepOver(giver)
-    print("Periodiccall")
     giver.components.questgiver:CheckQuests()
 end
 
 
 local function CheckSleepOver(giver) 
     local x, y, z = giver.components.questgiver.questobject.Transform:GetWorldPosition()
-    local birds = GLOBAL.TheSim:FindEntities(x, y, z, 20, {"player","sleeping"})
-    if #birds >= giver.components.questgiver.questnumber then
+    local sleepers = GLOBAL.TheSim:FindEntities(x, y, z, 20, {"player","sleeping"})
+    if #sleepers >= giver.components.questgiver.questnumber then
         giver.components.questgiver.queststatus="finished"
     end
 end
 
+local function SkinAnim(inst)
+    inst.AnimState:PlayAnimation("dialog_pre")
+    
+    inst.AnimState:PushAnimation("dial_loop")
+    inst.AnimState:PushAnimation("dialog_pst", false)
+    inst.AnimState:PushAnimation("idle", true)
+
+    inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/talk_LP", "skincollector")
+    inst:DoTaskInTime(5,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
+end
 ------------------------- ## Quests
 if GLOBAL.TUNING.QUESTSMOD==nil then
     GLOBAL.TUNING.QUESTSMOD = {}
@@ -99,18 +111,9 @@ end
 -- periodictimes          (float)    1 -> call periodicfn every 1 second. If periodictimes is nil, while there is an periodicfn, it will be called every 5 seconds.
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
-
--- local emotequest = {questname="Emote",skippable=true,questdiff=1,questnumber=1,questtimer=0.5,talknear=8,talkfar=9,questobject="self",questgiver="skin_collector",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitEmoteQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore={{str="Dance",anims={"emoteXL_pre_dance0","emoteXL_loop_dance0"}},{str="Kiss",anims={"emoteXL_kiss"}},{str="Bonesaw",anims={"emoteXL_bonesaw"}},{str="Angry",anims={"emoteXL_angry"}},{str="Happy",anims={"emoteXL_happycheer"}},{str="Pose",anims={"emote_strikepose"}},{str="Wave",anims={"emoteXL_waving1","emoteXL_waving1"}},{str="Facepalm",anims={"emoteXL_facepalm"}},{str="Joy",anims={"research"}},{str="Cry",anims={"emoteXL_sad"}},{str="Annoyed",anims={"emoteXL_annoyed"}},{str="Bye",anims={"emoteXL_waving3","emoteXL_waving4"}}},}
--- for i=1,GetModConfigData("number") do -- add the emote quest x times. IMPORTANT: if adding entries with the same questname, keep also all other values the same! You can variate them in the initfn instead!
-    -- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, emotequest)
--- end
--- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="BuildPighouses",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitHousesQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
--- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="BuildWall",skippable=true,questdiff=2,questnumber=100,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitWallQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil}) -- -- depending on kind of wall, questnumberreached will be increased by different values
--- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="PigHats",skippable=true,questdiff=1,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckHats,rewardfn="default",initfn=InitPigHatsQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
--- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Teenbird",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckTeenbirdQuest,rewardfn="default",initfn=InitTeenbirdQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
 -- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Critter",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckCritterQuest,rewardfn="default",initfn=InitCritterQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
 
-table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Sleepover",skippable=true, periodicfn=PeriodicSleepOver, periodictimes=2,questdiff=1,questnumber=1,questtimer=nil,talknear=11,talkfar=12,questobject="self",questgiver="skin_collector",customrewarditems={},customrewardblueprints={},checkfn=CheckSleepOver,rewardfn="default",initfn=InitSleepOver,animationfn="default",talking={near={"Fall asleep next to me, kid."},far={"Fall asleep next to me, kid."},solved={"You're quite the snorer."},wantskip={"Want to take a rain check?"},skipped={"Alright."}},customstore=nil})
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Sleepover",skippable=true, periodicfn=PeriodicSleepOver, periodictimes=2,questdiff=1,questnumber=1,questtimer=nil,talknear=5,talkfar=7,questobject="self",questgiver="skin_collector",customrewarditems={},customrewardblueprints={},checkfn=CheckSleepOver,rewardfn="default",initfn=InitSleepOver,animationfn=SkinAnim,})
 
 
 

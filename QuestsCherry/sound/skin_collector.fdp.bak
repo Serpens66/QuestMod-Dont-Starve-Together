@@ -1,0 +1,199 @@
+<project>
+<name>skin_collector</name>
+<guid>{dee010d4-357c-4e4f-b7a8-791bbb0d7a88}</guid>
+<version>4</version>
+<eventgroup_nextid>0</eventgroup_nextid>
+<soundbank_nextid>0</soundbank_nextid>
+<sounddef_nextid>0</sounddef_nextid>
+<build_project>1</build_project>
+<build_headerfile>0</build_headerfile>
+<build_banklists>0</build_banklists>
+<build_programmerreport>0</build_programmerreport>
+<build_applytemplate>0</build_applytemplate>
+<build_continue_on_error>0</build_continue_on_error>
+<currentlanguage></currentlanguage>
+<primarylanguage></primarylanguage>
+<templatefilename></templatefilename>
+<templatefileopen>1</templatefileopen>
+<eventcategory>
+<name>music</name>
+<guid>{4c9aec20-198b-46c5-a23f-e133cb166324}</guid>
+<volume_db>0</volume_db>
+<pitch>0</pitch>
+<maxplaybacks>0</maxplaybacks>
+<maxplaybacks_behavior>Steal_oldest</maxplaybacks_behavior>
+<notes></notes>
+<open>0</open>
+</eventcategory>
+<sounddeffolder>
+<name>master</name>
+<guid>{ee019619-10c7-41c1-98c8-2adf3a0cc128}</guid>
+<open>0</open>
+</sounddeffolder>
+<default_soundbank_props>
+<name>default_soundbank_props</name>
+<guid>{ffec59ea-96f3-4ca6-bba4-8ccd01cf02b9}</guid>
+<load_into_rsx>0</load_into_rsx>
+<disable_seeking>0</disable_seeking>
+<enable_syncpoints>1</enable_syncpoints>
+<hasbuiltwithsyncpoints>0</hasbuiltwithsyncpoints>
+<_PC_banktype>DecompressedSample</_PC_banktype>
+<_XBOX360_banktype>DecompressedSample</_XBOX360_banktype>
+<_PSP_banktype>DecompressedSample</_PSP_banktype>
+<_PS3_banktype>DecompressedSample</_PS3_banktype>
+<_WII_banktype>DecompressedSample</_WII_banktype>
+<_WiiU_banktype>DecompressedSample</_WiiU_banktype>
+<_3DS_banktype>DecompressedSample</_3DS_banktype>
+<_NGP_banktype>DecompressedSample</_NGP_banktype>
+<_ANDROID_banktype>DecompressedSample</_ANDROID_banktype>
+<_IOS_banktype>DecompressedSample</_IOS_banktype>
+<notes></notes>
+<_PC_format>PCM</_PC_format>
+<_PC_quality>50</_PC_quality>
+<_PC_forcesoftware>1</_PC_forcesoftware>
+<_PC_maxstreams>10</_PC_maxstreams>
+<_XBOX360_format>PCM</_XBOX360_format>
+<_XBOX360_quality>50</_XBOX360_quality>
+<_XBOX360_forcesoftware>1</_XBOX360_forcesoftware>
+<_XBOX360_maxstreams>10</_XBOX360_maxstreams>
+<_PSP_format>PCM</_PSP_format>
+<_PSP_quality>50</_PSP_quality>
+<_PSP_forcesoftware>0</_PSP_forcesoftware>
+<_PSP_maxstreams>10</_PSP_maxstreams>
+<_PS3_format>PCM</_PS3_format>
+<_PS3_quality>50</_PS3_quality>
+<_PS3_forcesoftware>1</_PS3_forcesoftware>
+<_PS3_maxstreams>10</_PS3_maxstreams>
+<_WII_format>PCM</_WII_format>
+<_WII_quality>50</_WII_quality>
+<_WII_forcesoftware>0</_WII_forcesoftware>
+<_WII_maxstreams>10</_WII_maxstreams>
+<_WiiU_format>PCM</_WiiU_format>
+<_WiiU_quality>50</_WiiU_quality>
+<_WiiU_forcesoftware>0</_WiiU_forcesoftware>
+<_WiiU_maxstreams>10</_WiiU_maxstreams>
+<_3DS_format>PCM</_3DS_format>
+<_3DS_quality>50</_3DS_quality>
+<_3DS_forcesoftware>0</_3DS_forcesoftware>
+<_3DS_maxstreams>10</_3DS_maxstreams>
+<_NGP_format>PCM</_NGP_format>
+<_NGP_quality>50</_NGP_quality>
+<_NGP_forcesoftware>0</_NGP_forcesoftware>
+<_NGP_maxstreams>10</_NGP_maxstreams>
+<_ANDROID_format>PCM</_ANDROID_format>
+<_ANDROID_quality>50</_ANDROID_quality>
+<_ANDROID_forcesoftware>1</_ANDROID_forcesoftware>
+<_ANDROID_maxstreams>10</_ANDROID_maxstreams>
+<_IOS_format>PCM</_IOS_format>
+<_IOS_quality>50</_IOS_quality>
+<_IOS_forcesoftware>1</_IOS_forcesoftware>
+<_IOS_maxstreams>10</_IOS_maxstreams>
+</default_soundbank_props>
+<notes></notes>
+<currentplatform>PC</currentplatform>
+<_PC_encryptionkey></_PC_encryptionkey>
+<_PC_builddirectory></_PC_builddirectory>
+<_PC_audiosourcedirectory></_PC_audiosourcedirectory>
+<_PC_prebuildcommands></_PC_prebuildcommands>
+<_PC_postbuildcommands></_PC_postbuildcommands>
+<_PC_buildinteractivemusic>Yes</_PC_buildinteractivemusic>
+<_XBOX360_encryptionkey></_XBOX360_encryptionkey>
+<_XBOX360_builddirectory></_XBOX360_builddirectory>
+<_XBOX360_audiosourcedirectory></_XBOX360_audiosourcedirectory>
+<_XBOX360_prebuildcommands></_XBOX360_prebuildcommands>
+<_XBOX360_postbuildcommands></_XBOX360_postbuildcommands>
+<_XBOX360_buildinteractivemusic>Yes</_XBOX360_buildinteractivemusic>
+<_PSP_encryptionkey></_PSP_encryptionkey>
+<_PSP_builddirectory></_PSP_builddirectory>
+<_PSP_audiosourcedirectory></_PSP_audiosourcedirectory>
+<_PSP_prebuildcommands></_PSP_prebuildcommands>
+<_PSP_postbuildcommands></_PSP_postbuildcommands>
+<_PSP_buildinteractivemusic>Yes</_PSP_buildinteractivemusic>
+<_PS3_encryptionkey></_PS3_encryptionkey>
+<_PS3_builddirectory></_PS3_builddirectory>
+<_PS3_audiosourcedirectory></_PS3_audiosourcedirectory>
+<_PS3_prebuildcommands></_PS3_prebuildcommands>
+<_PS3_postbuildcommands></_PS3_postbuildcommands>
+<_PS3_buildinteractivemusic>Yes</_PS3_buildinteractivemusic>
+<_WII_encryptionkey></_WII_encryptionkey>
+<_WII_builddirectory></_WII_builddirectory>
+<_WII_audiosourcedirectory></_WII_audiosourcedirectory>
+<_WII_prebuildcommands></_WII_prebuildcommands>
+<_WII_postbuildcommands></_WII_postbuildcommands>
+<_WII_buildinteractivemusic>Yes</_WII_buildinteractivemusic>
+<_WiiU_encryptionkey></_WiiU_encryptionkey>
+<_WiiU_builddirectory></_WiiU_builddirectory>
+<_WiiU_audiosourcedirectory></_WiiU_audiosourcedirectory>
+<_WiiU_prebuildcommands></_WiiU_prebuildcommands>
+<_WiiU_postbuildcommands></_WiiU_postbuildcommands>
+<_WiiU_buildinteractivemusic>Yes</_WiiU_buildinteractivemusic>
+<_3DS_encryptionkey></_3DS_encryptionkey>
+<_3DS_builddirectory></_3DS_builddirectory>
+<_3DS_audiosourcedirectory></_3DS_audiosourcedirectory>
+<_3DS_prebuildcommands></_3DS_prebuildcommands>
+<_3DS_postbuildcommands></_3DS_postbuildcommands>
+<_3DS_buildinteractivemusic>Yes</_3DS_buildinteractivemusic>
+<_NGP_encryptionkey></_NGP_encryptionkey>
+<_NGP_builddirectory></_NGP_builddirectory>
+<_NGP_audiosourcedirectory></_NGP_audiosourcedirectory>
+<_NGP_prebuildcommands></_NGP_prebuildcommands>
+<_NGP_postbuildcommands></_NGP_postbuildcommands>
+<_NGP_buildinteractivemusic>Yes</_NGP_buildinteractivemusic>
+<_ANDROID_encryptionkey></_ANDROID_encryptionkey>
+<_ANDROID_builddirectory></_ANDROID_builddirectory>
+<_ANDROID_audiosourcedirectory></_ANDROID_audiosourcedirectory>
+<_ANDROID_prebuildcommands></_ANDROID_prebuildcommands>
+<_ANDROID_postbuildcommands></_ANDROID_postbuildcommands>
+<_ANDROID_buildinteractivemusic>Yes</_ANDROID_buildinteractivemusic>
+<_IOS_encryptionkey></_IOS_encryptionkey>
+<_IOS_builddirectory></_IOS_builddirectory>
+<_IOS_audiosourcedirectory></_IOS_audiosourcedirectory>
+<_IOS_prebuildcommands></_IOS_prebuildcommands>
+<_IOS_postbuildcommands></_IOS_postbuildcommands>
+<_IOS_buildinteractivemusic>Yes</_IOS_buildinteractivemusic>
+<presavecommands></presavecommands>
+<postsavecommands></postsavecommands>
+<neweventusetemplate>0</neweventusetemplate>
+<neweventlasttemplatename></neweventlasttemplatename>
+
+<Composition>
+    <AuditionConsoleControlRepository/>
+    <CompositionUI>
+        <SceneEditor>
+            <SceneEditorItemRepository/>
+        </SceneEditor>
+        <ThemeEditor>
+            <ThemeEditorItemRepository/>
+        </ThemeEditor>
+    </CompositionUI>
+    <CueFactory>
+        <UID>1</UID>
+    </CueFactory>
+    <CueRepository/>
+    <ExtLinkFactory>
+        <UID>1</UID>
+    </ExtLinkFactory>
+    <ExtLinkRepository/>
+    <ExtSegmentFactory>
+        <UID>1</UID>
+    </ExtSegmentFactory>
+    <MusicSettings>
+        <BaseVolume>1</BaseVolume>
+        <BaseReverbLevel>1</BaseReverbLevel>
+    </MusicSettings>
+    <ParameterFactory>
+        <UID>1</UID>
+    </ParameterFactory>
+    <ParameterRepository/>
+    <SceneRepository/>
+    <SegmentRepository/>
+    <SharedFile/>
+    <ThemeFactory>
+        <UID>1</UID>
+    </ThemeFactory>
+    <ThemeRepository/>
+    <TimelineFactory>
+        <UID>1</UID>
+    </TimelineFactory>
+    <TimelineRepository/>
+</Composition></project>
