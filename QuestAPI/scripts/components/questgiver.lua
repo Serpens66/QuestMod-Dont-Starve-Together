@@ -109,7 +109,7 @@ local function WhenSay(giver,kind,str) -- kind is "near", "solved", "skipped" an
 end
 
 local function GiveQuestLoot(questkeeper,questname,player) -- player is only needed for spawning the reward in direction of the player. so not mandatory
-    local strings = STRINGS.QUESTSMOD[string.upper(questname)]
+    local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
     local defaultstrings = strings and strings.SOLVED or STRINGS.QUESTSMOD.DEFAULTSOLVED -- standard solved strings
     local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.solved)=="table" and next(questkeeper.components.questgiver.talking.solved) and questkeeper.components.questgiver.talking.solved or defaultstrings)
     if str~="" then
@@ -258,7 +258,7 @@ end
 local function TalkNear(questkeeper,player) -- give hints about "quests" or give reward
     print("questgiver: TalkNear "..tostring(questkeeper.components.questgiver and questkeeper.components.questgiver.questname or "nichts"))
     local questname = questkeeper.components.questgiver.questname
-    local strings = STRINGS.QUESTSMOD[string.upper(questname)]
+    local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
     local defaultstrings = strings and strings.NEAR or {questname} -- if not strings are defined, use questname
     if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then 
         CheckIfQuestFinished(questkeeper) -- calls also triggerreward , but only if a player is in range! .. which should be the case when talknear... nevermind, it does not hurt this way 
@@ -305,7 +305,7 @@ end
 local function TalkFar(questkeeper) -- player is unknown
     print("questgiver: TalkFar")
     local questname = questkeeper.components.questgiver.questname
-    local strings = STRINGS.QUESTSMOD[string.upper(questname)]
+    local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
     local defaultstrings = strings and strings.FAR or {questname} -- if not strings are defined, use questname
     if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then 
         CheckIfQuestFinished(questkeeper) -- calls also triggerreward  , but only if a player is in range!
