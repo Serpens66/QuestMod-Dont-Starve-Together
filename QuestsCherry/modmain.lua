@@ -38,22 +38,39 @@ local function GetAveragePlayerAgeInDays()
 end
 
 
-
+local function OnDeployItem(player,data)
+    if player~=nil and data~=nil and type(data)=="table" and type(player)=="table" then
+        print("Quest Debug: player ".._G.tostring(player.prefab).." deployed: ".._G.tostring(data.prefab))
+    end
+    if data and data then 
+        local x, y, z = player.Transform:GetWorldPosition()
+        local questgivers = TheSim:FindEntities(x, y, z, 100, nil, nil, {"questgiver"}) 
+        if string.match(data.prefab,"pinecone") then
+            for i,giver in ipairs(questgivers) do
+                if giver.components and giver.components.questgiver and giver.components.questgiver.questname=="Reforester" then
+                    if data.prefab=="pinecone" then
+                        giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 1
+                    end
+                    -- update strings
+                    if GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)] then
+                        giver.components.questgiver.talking.near = {}
+                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].NEAR) do
+                            table.insert(giver.components.questgiver.talking.near,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
+                        end
+                        giver.components.questgiver.talking.far = {}
+                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].FAR) do
+                            table.insert(giver.components.questgiver.talking.far,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- if there is no %i in the string, string.format wont change the string
+                        end
+                    end
+                    giver:DoTaskInTime(0.1,function(giver) giver.components.questgiver:CheckQuests() end)
+                end
+            end
+        end
+    end
+end
 
 local function InitSleepOver(giver)
-    -- only add you strings in QUESTS or here in init, better not both (if you want to add variable strings, do it in init, if not do it in QUESTS)
-    
-    -- if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        -- for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            -- table.insert(giver.components.questgiver.talking.near,string.format(entry,giver.components.questgiver.customstore)) -- this line adds the content of customstore to the string. Only necessary if you want a variable number or name in your string
-        -- end
-        -- for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            -- table.insert(giver.components.questgiver.talking.far,string.format(entry,giver.components.questgiver.customstore)) 
-        -- end
-        -- giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
-        -- giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
-        -- giver.components.questgiver.talking.skipped = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SKIPPED
-    -- end
+
 end
 
 -- check function is automatically called when walking in range of questgiver. While sleeping you can't walk, so you need an event that is fired when sleeping and then call giver:DoTaskInTime(0.1,function(giver) giver.components.questgiver:CheckQuests() end) this will also call your specifc checkfn
@@ -72,16 +89,52 @@ local function CheckSleepOver(giver)
     end
 end
 
+local function InitReforester(giver)
+
+end
+
+local function CheckReforester(giver)
+    local l = {1,2,3}
+    local age = GetAveragePlayerAgeInDays()
+    if age <=25 then
+        l = {10}
+    elseif age <60 then
+        l = {10,20}
+    elseif age < 100 then
+        l = {10,20,20,30}
+    elseif age >= 100 then
+        l = {20,30, 40}
+    end
+    local questname = giver.components.questgiver.questname
+    local num = GLOBAL.GetRandomItem(l)
+    giver.components.questgiver.questnumber = num
+    giver.components.questgiver.questdiff = num / 40
+    local reached = giver.components.questgiver.questnumberreached 
+    -- adjust strings
+    if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
+            table.insert(giver.components.questgiver.talking.near,string.format(entry,reached,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
+        end
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
+            table.insert(giver.components.questgiver.talking.far,string.format(entry,reached,num)) -- if there is no %i in the string, string.format wont change the string
+        end
+        giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
+        giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
+        giver.components.questgiver.talking.skipped = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SKIPPED
+    end
+end
+
 local function SkinRewardAnim(inst)
-    -- inst.AnimState:PlayAnimation("dialog_pre")
-    -- inst.AnimState:PushAnimation("dial_loop")
-    -- inst.AnimState:PushAnimation("dialog_pst", false)
     inst.AnimState:PlayAnimation("snap", false)
+    inst.AnimState:PushAnimation("dialog_pre")
+    inst.AnimState:PushAnimation("dial_loop")
+    inst.AnimState:PushAnimation("dialog_pst", false)
     inst.AnimState:PushAnimation("idle", true)
 
-    inst:DoTaskInTime(0.5,function(inst) inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/snap", "skincollector") end)
+
+    inst:DoTaskInTime(0.185,function(inst) inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/snap", "skincollector") end)
     inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/talk_LP", "skincollector")
-    inst:DoTaskInTime(1,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
+    --inst:DoTaskInTime(1,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
 end
 ------------------------- ## Quests
 if GLOBAL.TUNING.QUESTSMOD==nil then
@@ -112,14 +165,39 @@ end
 -- whensayfn              (function) this function is called everytime shorlty before the questgiver is saying something. params: giver,kind,str. kind can be "near","far","solved","wantskip" and "skipped". str is the string he will say. Here you could add your custom talking sound/animation. Make sure it is compatible to your animationfn, which is played when solved!
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
--- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Critter",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckCritterQuest,rewardfn="default",initfn=InitCritterQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
+--  table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
+--     questname="Critter",
+--     skippable=true,
+--     questdiff=3,
+--     questnumber=1,
+--     questtimer=nil,
+--     talknear=8,
+--     talkfar=9,
+--     questobject="self",
+--     questgiver="pigking",
+--     customrewarditems={},
+--     customrewardblueprints={},
+--     checkfn=CheckCritterQuest,
+--     rewardfn="default",
+--     initfn=InitCritterQuest,
+--     animationfn="default",
+--     talking={
+--         near={},
+--         far={},
+--         solved={},
+--         wantskip={},
+--         skipped={}
+--         },
+--     customstore=nil
+--     }
+-- )
 
 table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
     questname="Sleepover",
     skippable=true, 
     periodicfn=PeriodicSleepOver, 
     periodictimes=2,
-    questdiff=1,
+    questdiff=2,
     questnumber=1,
     questtimer=nil,
     talknear=4,
@@ -142,6 +220,31 @@ table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
     }
 )
 
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
+    questname="Reforester",
+    skippable=true,
+    questdiff=2,
+    questnumber=100,
+    questtimer=nil,
+    talknear=4,
+    talkfar=5,
+    questobject="self",
+    questgiver="skin_collector",
+    customrewarditems={},
+    customrewardblueprints={},
+    checkfn="reachnumber",
+    rewardfn="default",
+    initfn=InitReforester,
+    animationfn=SkinRewardAnim,
+    talking={
+        near=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.NEAR,
+        far=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.FAR,
+        solved=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.SOLVED,
+        wantskip=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.WANTSKIP,
+        skipped=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.SKIPPED
+        }
+    }
+)
 
 
 -- you can also add quests with new world objects. see example in scripts/scenarios/quest_destroystatue_pig.lua. This scenario is added to the maxwell statue of the maxwell_pig_shrine.lua, which must be replaced in map folder.
@@ -167,15 +270,15 @@ local function OnPlayerSpawn(inst)
     if not GLOBAL.TheNet:GetIsServer() then 
         return
     end
+    inst:ListenForEvent("deployitem", OnDeployItem) -- eg placing walls
 end
 AddPlayerPostInit(OnPlayerSpawn)
 
 local function SpawnSkinCollector(world)
-    local x,y,z = world.components.playerspawner.GetAnySpawnPoint()
-    local spawnpointpos = GLOBAL.Vector3(x ,y ,z )
-    local keepers = TheSim:FindEntities(x, y, z, 20, nil, nil, {"skin_collector"})
-    if not _G.next(keepers) then -- if there is no keeper, but there should be one, create one.
-        GLOBAL.TUNING.questfunctions.SpawnPrefabAtLandPlotNearInst("skin_collector",spawnpointpos,15,0,15,1,3,3)
+    local keeper = TheSim:FindFirstEntityWithTag("skin_collector")
+    local beefalo = TheSim:FindFirstEntityWithTag("beefalo")
+    if not keeper and beefalo then -- if there is no keeper, but there should be one, create one.
+        GLOBAL.TUNING.questfunctions.SpawnPrefabAtLandPlotNearInst("skin_collector",beefalo,15,0,15,1,3,3)
     end
 end
 

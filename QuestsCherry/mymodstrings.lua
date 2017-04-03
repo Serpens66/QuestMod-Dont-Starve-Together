@@ -13,10 +13,17 @@ end
 
 GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER = {}
 GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.NEAR = {"Hey, kid, mind fallin' asleep next ta me?",""} -- when translating, make sure you keep exactly the same order and amount of %i, %f and %s ! %.1f means a float number, with 1 decimal place
-GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.FAR = {"Hey, kid, mind fallin' asleep next ta me?",""}
+GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.FAR = {"Hey, kid, mind fallin' asleep next ta me?","",""}
 GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.SOLVED = {"Yep, just what I though. Here's your reward."}
 GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.WANTSKIP = {"Want to take a rain-check?"}
 GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.SKIPPED = {"Alright."}
+
+GLOBAL.STRINGS.QUESTSMOD.REFORESTER = {}
+GLOBAL.STRINGS.QUESTSMOD.REFORESTER.NEAR = {"Could ya plant %i more trees around, kid?",""} -- when translating, make sure you keep exactly the same order and amount of %i, %f and %s ! %.1f means a float number, with 1 decimal place
+GLOBAL.STRINGS.QUESTSMOD.REFORESTER.FAR = {"Could ya plant %i more trees around, kid?","",""}
+GLOBAL.STRINGS.QUESTSMOD.REFORESTER.SOLVED = {"Thanks. Here's your reward."}
+GLOBAL.STRINGS.QUESTSMOD.REFORESTER.WANTSKIP = {"Want to take a rain-check?"}
+GLOBAL.STRINGS.QUESTSMOD.REFORESTER.SKIPPED = {"Alright."}
 
 GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST = {"Got nothing for ya, kid.","",""}
 GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN = {"Come back in %.2f days for a new job.","","",""}
