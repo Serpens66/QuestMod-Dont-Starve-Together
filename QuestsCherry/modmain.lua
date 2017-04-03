@@ -72,15 +72,16 @@ local function CheckSleepOver(giver)
     end
 end
 
-local function SkinAnim(inst)
-    inst.AnimState:PlayAnimation("dialog_pre")
-    
-    inst.AnimState:PushAnimation("dial_loop")
-    inst.AnimState:PushAnimation("dialog_pst", false)
+local function SkinRewardAnim(inst)
+    -- inst.AnimState:PlayAnimation("dialog_pre")
+    -- inst.AnimState:PushAnimation("dial_loop")
+    -- inst.AnimState:PushAnimation("dialog_pst", false)
+    inst.AnimState:PlayAnimation("snap", false)
     inst.AnimState:PushAnimation("idle", true)
 
+    inst:DoTaskInTime(0.5,function(inst) inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/snap", "skincollector") end)
     inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/talk_LP", "skincollector")
-    inst:DoTaskInTime(5,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
+    inst:DoTaskInTime(1,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
 end
 ------------------------- ## Quests
 if GLOBAL.TUNING.QUESTSMOD==nil then
@@ -106,14 +107,40 @@ end
 -- talking                (strings)  talking={near={},far={},solved={},wantskip={}}. In the tables near, far, solved, wantskip, you can add strings the questgiver should say when a player goes near him, leaves him, when the quest is solved or to ask if the player really wants to skip the quest. A random string form the list is chosen each time. Of course you can also fill it during your initfn. If you fill them in initfn, better let them empty in global QUESTS.
 -- skippable              (boolean)  true or false (true by default). If according to modsettings quests are skippable and this skippable entry is not false, the quest will be skippable by perfomring three times within 30 seconds the Annoyed emotion. If not "false", the skippable entry will be set to numbers, to count the times you made the Annoyed animation. So to check if a quest is skippable do a ~=false check.
 -- onetime                (boolean)  true or false (nil-> false). If true, this quest at this questgiver can only be solved one time, even it loopquests is active. Eg. if quest is destroy a statue. You can only destroy it once.         
--- endfn                  (function) this function is alawys called, when a function was solved or skipped. Here you can remove any questspecifc things, if necessary
 -- periodicfn             (function) This function will be called periodically with periodictimes, starting after the initfn. You can eg. use it to call CheckQuest. If possible better use an event to check quests or the automatic check when a player goes near the questgiver! But if both is not possible, use this. The api mod will save and load the task automatically and also cancel it, if the quest is solved/skipped.
--- periodictimes          (float)    1 -> call periodicfn every 1 second. If periodictimes is nil, while there is an periodicfn, it will be called every 5 seconds.
+-- periodictimes          (float)    1 -> call it every 1 second.
+-- whensayfn              (function) this function is called everytime shorlty before the questgiver is saying something. params: giver,kind,str. kind can be "near","far","solved","wantskip" and "skipped". str is the string he will say. Here you could add your custom talking sound/animation. Make sure it is compatible to your animationfn, which is played when solved!
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
 -- table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Critter",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckCritterQuest,rewardfn="default",initfn=InitCritterQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
 
-table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Sleepover",skippable=true, periodicfn=PeriodicSleepOver, periodictimes=2,questdiff=1,questnumber=1,questtimer=nil,talknear=5,talkfar=7,questobject="self",questgiver="skin_collector",customrewarditems={},customrewardblueprints={},checkfn=CheckSleepOver,rewardfn="default",initfn=InitSleepOver,animationfn=SkinAnim,})
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
+    questname="Sleepover",
+    skippable=true, 
+    periodicfn=PeriodicSleepOver, 
+    periodictimes=2,
+    questdiff=1,
+    questnumber=1,
+    questtimer=nil,
+    talknear=4,
+    talkfar=5,
+    questobject="self",
+    questgiver="skin_collector",
+    customrewarditems={},
+    customrewardblueprints={},
+    checkfn=CheckSleepOver,
+    rewardfn="default",
+    initfn=InitSleepOver,
+    animationfn=SkinRewardAnim,
+    talking= {
+        near= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.NEAR,
+        far= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.FAR,
+        solved= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.SOLVED,
+        wantskip= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.WANTSKIP,
+        skipped= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.SKIPPED
+        }
+    }
+)
 
 
 
