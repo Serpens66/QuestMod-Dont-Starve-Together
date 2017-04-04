@@ -24,6 +24,7 @@ GLOBAL.TUNING.QUEST_DIFFICULTY = GetModConfigData("difficulty")
 GLOBAL.TUNING.QUEST_BLUEPRINTMODE = GetModConfigData("blueprintonly")
 GLOBAL.TUNING.QUEST_SHOPMODE = GetModConfigData("shopkeeperstuff")
 GLOBAL.TUNING.QUEST_NEWONE = GetModConfigData("newquest") -- x * daytime has to pass, until getting a new quest
+GLOBAL.TUNING.QUEST_NEWONESKIPPED = GetModConfigData("newquestskipped") 
 GLOBAL.TUNING.QUEST_LOOP = GetModConfigData("loopquests")
 
 GLOBAL.TUNING.questfunctions = GLOBAL.require("scenarios/questfunctions") -- make them global, so also other mods can access it

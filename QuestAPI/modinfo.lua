@@ -34,7 +34,7 @@ configuration_options =
     {
 		name = "newquest",
 		label = "NextQuest",
-		hover = "How much time should pass by, before getting a new quest\nafter solving the previous one?\nAfter skipping a quest, you only need to wait half of that time.\nWhen changing during a game, this won't affect present waiting time.",
+		hover = "How much time should pass by, before getting a new quest\nafter SOLVING the previous one?\nWhen changing during a game, this won't affect present waiting time.",
 		options = 
 		{
             {description = "Instant", data = 0, hover="Directly after completing a quest,\nyou get a new quest, if one is available."},
@@ -47,6 +47,23 @@ configuration_options =
             {description = "Fourteen days", data = 14, hover="Fourteen days after completing a quest,\nyou get a new quest, if one is available."},
         },
 		default = 1,
+    },
+    {
+		name = "newquestskipped",
+		label = "NextQSkipped",
+		hover = "How much time should pass by, before getting a new quest\nafter SKIPPING the previous one?\nWhen changing during a game, this won't affect present waiting time.",
+		options = 
+		{
+            {description = "Instant", data = 0, hover="Directly after completing a quest,\nyou get a new quest, if one is available."},
+            {description = "Quarter day", data = 1/4, hover="A quarter day after completing a quest,\nyou get a new quest, if one is available."},
+            {description = "Half day", data = 1/2, hover="A half day after completing a quest,\nyou get a new quest, if one is available."},
+            {description = "Whole day", data = 1, hover="A whole day after completing a quest,\nyou get a new quest, if one is available."},
+            {description = "Two days", data = 2, hover="Two days after completing a quest,\nyou get a new quest, if one is available."},
+            {description = "Three days", data = 3, hover="Three days after completing a quest,\nyou get a new quest, if one is available."},
+            {description = "Seven days", data = 7, hover="Seven days after completing a quest,\nyou get a new quest, if one is available."},
+            {description = "Fourteen days", data = 14, hover="Fourteen days after completing a quest,\nyou get a new quest, if one is available."},
+        },
+		default = 1/2,
     },
     {
 		name = "loopquests",

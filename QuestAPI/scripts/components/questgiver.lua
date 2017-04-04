@@ -418,7 +418,7 @@ end
 
 function QuestGiver:SkipQuest() -- skip the quest   
     self.inst.components.questgiver:QuestResett() -- start next quest in half of the normal waiting time
-    self.inst.components.questgiver.nextquesttask = self.inst:DoTaskInTime(((TUNING.QUEST_NEWONE * TUNING.TOTAL_DAY_TIME)/2) + 5 ,function(inst) inst.components.questgiver:StartNextQuest() end) -- next day there will be the next quest (or when world is loaded)  
+    self.inst.components.questgiver.nextquesttask = self.inst:DoTaskInTime((TUNING.QUEST_NEWONESKIPPED * TUNING.TOTAL_DAY_TIME) + 5 ,function(inst) inst.components.questgiver:StartNextQuest() end) -- next day there will be the next quest (or when world is loaded)  
 end
 
 function QuestGiver:WantSkipQuest() -- quest if quest skipping is allowed and count
