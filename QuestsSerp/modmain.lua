@@ -95,7 +95,7 @@ local function InitEmoteQuest(giver) -- #GLOBAL.AllPlayers is only players in on
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
         for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
-            table.insert(giver.components.questgiver.talking.examine,string.format(entry,num,GLOBAL.tostring(giver.components.questgiver.customstore.str),timer)) -- add information about what emotion is wanted to the strings, which contain "%s"
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,GLOBAL.tostring(giver.components.questgiver.customstore.str),num,timer)) -- add information about what emotion is wanted to the strings, which contain "%s"
         end
         for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP) do
             table.insert(giver.components.questgiver.talking.wantskip,string.format(entry,GLOBAL.tostring(giver.components.questgiver.customstore.str)))
@@ -335,10 +335,12 @@ end
 -- animationfn            (function) Is called shortly before releasing the reward. You can make it nil for no animation of "default" for the default animation. For default currently supported are pigking and pigman.
 -- customstore            (any)      Can be anything, EXCEPT an object/instance. You can use it to store your custom information. Eg. for the emote quest, I store the ranomly chosen emotion in this. You can also save this to store a character prefab, so only this character can solve your quest or whatever.
 -- talking                (strings)  talking={examine={},solved={},wantskip={},skipped={}}. In the tables examine, solved, wantskip, you can add strings the questgiver should say when a player examines him near, when the quest is solved or to ask if the player really wants to skip the quest. A random string form the list is chosen each time. Of course you can also fill it during your initfn, if you want variable strings.-- skippable              (boolean)  true or false (true by default). If according to modsettings quests are skippable and this skippable entry is not false, the quest will be skippable by perfomring three times within 30 seconds the Annoyed emotion. If not "false", the skippable entry will be set to numbers, to count the times you made the Annoyed animation. So to check if a quest is skippable do a ~=false check.
--- onetime                (boolean)  true or false (nil-> false). If true, this quest at this questgiver can only be solved one time, even it loopquests is active. Eg. if quest is destroy a statue. You can only destroy it once.         
+-- onetime                (boolean)  true or false (nil-> false). If true, this quest at this questgiver can only be solved one time, even it loopquests is active. Eg. if quest is destroy a statue. You can only destroy it once. onetime means, that it is checking if already a quest with this name was filled, so be careful with several quests having the same name!    
+-- endfn                  (function) this function is alawys called, when a quest was solved or skipped. Here you can remove any questspecifc things, if necessary
 -- periodicfn             (function) This function will be called periodically with periodictimes, starting after the initfn. You can eg. use it to call CheckQuest. If possible better use an event to check quests or the automatic check when a player goes near the questgiver! But if both is not possible, use this. The api mod will save and load the task automatically and also cancel it, if the quest is solved/skipped.
 -- periodictimes          (float)    1 -> call it every 1 second.
 -- whensayfn              (function) this function is called everytime shorlty before the questgiver is saying something. params: giver,kind,str. kind can be "examine","solved","wantskip" and "skipped". str is the string he will say. Here you could add your custom talking sound/animation. Make sure it is compatible to your animationfn, which is played when solved!
+-- conditions             {table}    A list of questname strings you have to solve at least one time, to have a chance to get this quest. If list is empty/nil, you can get this quest anytime. If making a questlline this way, you may consider doing them "onetime" quests.
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
 

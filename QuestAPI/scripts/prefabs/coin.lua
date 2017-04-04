@@ -46,8 +46,6 @@ local function fn(Sim)
 	inst.OnEntitySleep = onsleep
 
 	MakeInventoryPhysics(inst)
-	--MakeInventoryFloatable(inst, "idle_water", "idle")
-	--MakeBlowInHurricane(inst, TUNING.WINDBLOWN_SCALE_MIN.MEDIUM, TUNING.WINDBLOWN_SCALE_MAX.MEDIUM)
 
 	inst.AnimState:SetBloomEffectHandle( "shaders/anim.ksh" )	 
 	
@@ -69,14 +67,9 @@ local function fn(Sim)
 	inst:AddComponent("stackable")
 	inst.components.stackable.maxsize = TUNING.STACK_SIZE_SMALLITEM
 
-	inst:AddComponent("waterproofer")
-	inst.components.waterproofer.effectiveness = 0
 	inst:AddComponent("inventoryitem")
 	inst.components.inventoryitem.atlasname = "images/slotm_inventory.xml"
 
-	-- inst:AddComponent("tradable")
-	-- inst.components.tradable.goldvalue = 2 -- instead buying gold at shopkeeper, 4 coins one gold
-	
 	inst:AddComponent("bait")
 	
 	return inst

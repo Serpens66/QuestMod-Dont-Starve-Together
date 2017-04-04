@@ -214,6 +214,7 @@ local function TriggerReward(inst,player,questname)
         if inst.components.questgiver.onetime then
             table.insert(inst.components.questgiver.solvedonetimequests,questname) -- make sure this quest comes not again.
         end
+        table.insert(inst.components.questgiver.solvedquests,questname) -- to know if condition for a condition quest is met
         inst:DoTaskInTime(2,GiveQuestLoot,questname,player)
         inst.components.questgiver.nextquesttask = inst:DoTaskInTime(TUNING.QUEST_NEWONE * TUNING.TOTAL_DAY_TIME + 5,function(inst) inst.components.questgiver:StartNextQuest() end) -- next day there will be the next quest 
     end
@@ -300,6 +301,7 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     self.nextquesttasktimeleft = nil
     self.onetime = nil
     self.solvedonetimequests = {}
+    self.solvedquests = {}
     self.periodictimes = 5
     self.periodictask = nil
     -- endfn and periodicfn are always functions and therefore can not be saved. only accessable via global QUESTS.
@@ -345,7 +347,7 @@ function QuestGiver:Examination(player) -- questgiver should talk about the ques
         if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then
             str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.examine)=="table" and next(questkeeper.components.questgiver.talking.examine) and questkeeper.components.questgiver.talking.examine or defaultstrings)
         elseif questname==nil and not next(questkeeper.components.questgiver.questlist) then -- if no quest left (if questloop is active, the questlist won't be empty)
-            str = type(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)])=="table" and STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT
+            str = type(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)])=="table" and next(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)]) and STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT
             str = GetRandomItem(str)
             if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
                 questkeeper.components.talker.colour = Vector3(1, 1, 1) 
@@ -358,7 +360,7 @@ function QuestGiver:Examination(player) -- questgiver should talk about the ques
             if questkeeper.components.questgiver.nextquesttask~=nil then
                 days = GetTaskRemaining(questkeeper.components.questgiver.nextquesttask)
             end
-            str = type(STRINGS.QUESTSMOD.NEXTQUESTIN[string.upper(questkeeper.prefab)])=="table" and STRINGS.QUESTSMOD.NEXTQUESTIN[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NEXTQUESTIN.DEFAULT
+            str = type(STRINGS.QUESTSMOD.NEXTQUESTIN[string.upper(questkeeper.prefab)])=="table" and next(STRINGS.QUESTSMOD.NEXTQUESTIN[string.upper(questkeeper.prefab)]) and STRINGS.QUESTSMOD.NEXTQUESTIN[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NEXTQUESTIN.DEFAULT
             str = string.format(GetRandomItem(str),days/TUNING.TOTAL_DAY_TIME)
             if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
                 questkeeper.components.talker.colour = Vector3(1, 1, 1) 
@@ -523,6 +525,7 @@ function QuestGiver:OnSave()
     data.skippable = self.skippable
     data.onetime = self.onetime
     data.solvedonetimequests = self.solvedonetimequests
+    data.solvedquests = self.solvedquests
     data.periodictimes = self.periodictimes
     if self.nextquesttask~=nil then 
         data.nextquesttasktimeleft = GetTaskRemaining(self.nextquesttask) -- save the remaining time instead of the task itself
@@ -565,6 +568,7 @@ function QuestGiver:OnLoad(data)
     self.nextquesttasktimeleft = data and data.nextquesttasktimeleft or nil
     self.onetime = data and data.onetime or nil
     self.solvedonetimequests = data and data.solvedonetimequests or {}
+    self.solvedquests = data and data.solvedquests or {}
     self.periodictimes = data and data.periodictimes or 5
     
     for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do -- start period task again
@@ -769,45 +773,38 @@ function QuestGiver:StartNextQuest()
         end
     end
     
-    
+    -- remove quests for that conditions are not fullfilled (and add them at the end of the function again)
+    local removing = false
     for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do
-        if quest.conditions then
-            for i,name in pairs(quest.conditions) do
-                if table.contains(self.solvedonetimequests,name) then
-                    
+        removing = false
+        if type(quest.conditions)=="table" then
+            for i,condition in pairs(quest.conditions) do
+                if not table.contains(self.solvedquests,condition) then
+                    removing = true
+                end
+            end
+        end
+        if removing then
+            -- print("HIER should remove "..tostring(quest.questname))
+            k = 1
+            while k~=#self.questlist + 1 do
+                if self.questlist[k].questname == quest.questname then
+                    table.remove(self.questlist,k)
+                else
+                    k = k + 1
+                end
+            end
+            k = 1
+            while k~=#self.questlistSave + 1 do
+                if self.questlistSave[k].questname == quest.questname then -- also remove them from save, so we can add the quests at end of this function to both without problems
+                    table.remove(self.questlistSave,k) -- if we would not remove them here, it could be that questlist is set to questlistSave cause list was empty, and then we would add those quests again, whcih would double them
+                else
+                    k = k + 1
                 end
             end
         end
     end
-    
-    k = 1
-    for i,name in ipairs(self.solvedonetimequests) do -- remove quests that do not meet the conditions from questlist and add them again at end of function
-        k = 1
-        while k~=#TUNING.QUESTSMOD.QUESTS + 1 do
-            if TUNING.QUESTSMOD.QUESTS[k].questname == name and TUNING.QUESTSMOD.QUESTS[k].questgiver==self.inst.prefab then -- only remove it from QUESTS, if this is the questgiver
-                table.remove(TUNING.QUESTSMOD.QUESTS,k)
-            else
-                k = k + 1
-            end
-        end
-        k = 1
-        while k~=#self.questlist + 1 do
-            if self.questlist[k].questname == name then
-                table.remove(self.questlist,k)
-            else
-                k = k + 1
-            end
-        end
-        k = 1
-        while k~=#self.questlistSave + 1 do
-            if self.questlistSave[k].questname == name then
-                table.remove(self.questlistSave,k)
-            else
-                k = k + 1
-            end
-        end
-    end
-        
+            
     
     if self.questname~=nil then -- check if tha actual quest is still in global QUESTS. If not, remove it and get another quest
         local drin = false
@@ -841,6 +838,27 @@ function QuestGiver:StartNextQuest()
             print("QUESTS: Questloop active, refill empty questlist of "..tostring(self.inst.prefab))
         end
     end
+    
+    
+    -- now add the condition quests again, so in case we fullfill the conditions the next time, they can be chosen
+    local adding = false
+    for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do
+        if not (quest.onetime and table.contains(self.solvedonetimequests,quest.questname)) then -- but do not add onetimequests if they are filled!
+            adding = false
+            if type(quest.conditions)=="table" then
+                for i,condition in pairs(quest.conditions) do
+                    if not table.contains(self.solvedquests,condition) then
+                        adding = true
+                    end
+                end
+            end
+            if adding then
+                table.insert(self.questlist,quest)
+                table.insert(self.questlistSave,quest)
+            end
+        end
+    end
+    
 end
 
 

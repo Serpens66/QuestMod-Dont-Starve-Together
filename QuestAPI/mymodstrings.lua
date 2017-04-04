@@ -97,6 +97,9 @@ GLOBAL.STRINGS.QUESTSMOD.SHOP.SHELTER = {"Thanks for the shelter!"}
 if not GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST then
     GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST = {}
 end
+if not GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN then
+    GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN = {}
+end
 GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT = {"Sorry, I don't have more tasks for you.","That's all, thanks for helping."}
 GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN.DEFAULT = {"Come back in %.2f days for a new job.","I'll have another task for you in %.2f days."}
 GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST.PIGKING = {}
