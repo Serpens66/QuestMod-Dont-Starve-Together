@@ -214,7 +214,9 @@ local function TriggerReward(inst,player,questname)
         if inst.components.questgiver.onetime then
             table.insert(inst.components.questgiver.solvedonetimequests,questname) -- make sure this quest comes not again.
         end
-        table.insert(inst.components.questgiver.solvedquests,questname) -- to know if condition for a condition quest is met
+        if not table.contains(inst.components.questgiver.solvedquests,questname) then
+            table.insert(inst.components.questgiver.solvedquests,questname) -- to know if condition for a condition quest is met
+        end
         inst:DoTaskInTime(2,GiveQuestLoot,questname,player)
         inst.components.questgiver.nextquesttask = inst:DoTaskInTime(TUNING.QUEST_NEWONE * TUNING.TOTAL_DAY_TIME + 5,function(inst) inst.components.questgiver:StartNextQuest() end) -- next day there will be the next quest 
     end
