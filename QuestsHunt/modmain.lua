@@ -109,13 +109,9 @@ local function OnDeath(inst,data)
                 giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 1
                 -- update strings
                 if GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)] then
-                    giver.components.questgiver.talking.near = {}
-                    for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].NEAR) do
-                        table.insert(giver.components.questgiver.talking.near,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber,GLOBAL.STRINGS.NAMES[string.upper(giver.components.questgiver.customstore.name)] or giver.components.questgiver.customstore.name)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-                    end
-                    giver.components.questgiver.talking.far = {}
-                    for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].FAR) do
-                        table.insert(giver.components.questgiver.talking.far,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber,GLOBAL.STRINGS.NAMES[string.upper(giver.components.questgiver.customstore.name)] or giver.components.questgiver.customstore.name)) -- if there is no %i in the string, string.format wont change the string
+                    giver.components.questgiver.talking.examine = {}
+                    for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].EXAMINE) do
+                        table.insert(giver.components.questgiver.talking.examine,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber,GLOBAL.STRINGS.NAMES[string.upper(giver.components.questgiver.customstore.name)] or giver.components.questgiver.customstore.name)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
                     end
                 end
             end
@@ -212,11 +208,8 @@ local function InitKillQuest(giver)
     local questname = giver.components.questgiver.questname
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,reached,giver.components.questgiver.questnumber,GLOBAL.STRINGS.NAMES[string.upper(giver.components.questgiver.customstore.name)] or giver.components.questgiver.customstore.name)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,reached,giver.components.questgiver.questnumber,GLOBAL.STRINGS.NAMES[string.upper(giver.components.questgiver.customstore.name)] or giver.components.questgiver.customstore.name)) -- if there is no %i in the string, string.format wont change the string
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,reached,giver.components.questgiver.questnumber,GLOBAL.STRINGS.NAMES[string.upper(giver.components.questgiver.customstore.name)] or giver.components.questgiver.customstore.name)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
         end
         giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
         giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
@@ -242,16 +235,16 @@ end
 -- initfn                 (function) A function that is called once directly after starting the quest. Here you can spawn something or set some values for the quest.
 -- animationfn            (function) Is called shortly before releasing the reward. You can make it nil for no animation of "default" for the default animation. For default currently supported are pigking and pigman.
 -- customstore            (any)      Can be anything, EXCEPT an object/instance. You can use it to store your custom information. Eg. for the emote quest, I store the ranomly chosen emotion in this.
--- talking                (strings)  talking={near={},far={},solved={},wantskip={}}. In the tables near, far, solved, wantskip, you can add strings the questgiver should say when a player goes near him, leaves him, when the quest is solved or to ask if the player really wants to skip the quest. A random string form the list is chosen each time. Of course you can also fill it during your initfn.
+-- talking                (strings)  talking={examine={},solved={},wantskip={},skipped={}}. In the tables examine, solved, wantskip, you can add strings the questgiver should say when a player examines him near, when the quest is solved or to ask if the player really wants to skip the quest. A random string form the list is chosen each time. Of course you can also fill it during your initfn, if you want variable strings.
 -- skippable              (boolean)  true or false (true by default). If according to modsettings quests are skippable and this skippable entry is not false, the quest will be skippable by perfomring three times within 30 seconds the Annoyed emotion. If not "false", the skippable entry will be set to numbers, to count the times you made the Annoyed animation. So to check if a quest is skippable do a ~=false check.
 -- onetime                (boolean)  true or false (nil-> false). If true, this quest at this questgiver can only be solved one time, even it loopquests is active. Eg. if quest is destroy a statue. You can only destroy it once.  
 -- endfn                  (function) this function is alawys called, when a function was solved or skipped. Here you can remove any questspecifc things, if necessary
 -- periodicfn             (function) This function will be called periodically with periodictimes, starting after the initfn. You can eg. use it to call CheckQuest. If possible better use an event to check quests or the automatic check when a player goes near the questgiver! But if both is not possible, use this. The api mod will save and load the task automatically and also cancel it, if the quest is solved/skipped.
 -- periodictimes          (float)    1 -> call it every 1 second.
--- whensayfn              (function) this function is called everytime shorlty before the questgiver is saying something. params: giver,kind,str. kind can be "near","far","solved","wantskip" and "skipped". str is the string he will say. Here you could add your custom talking sound/animation. Make sure it is compatible to your animationfn, which is played when solved!
+-- whensayfn              (function) this function is called everytime shorlty before the questgiver is saying something. params: giver,kind,str. kind can be "examine","solved","wantskip" and "skipped". str is the string he will say. Here you could add your custom talking sound/animation. Make sure it is compatible to your animationfn, which is played when solved!
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
-local killquest = {questname="KillQuest",skippable=true,questdiff=1,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitKillQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore={}}
+local killquest = {questname="KillQuest",skippable=true,questdiff=1,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitKillQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore={}}
 for i=1,GetModConfigData("number") do -- add the quest 10 times IMPORTANT: if adding entries with the same questname, keep also all other values the same! You can variate them in the initfn instead!
     table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, killquest)
 end

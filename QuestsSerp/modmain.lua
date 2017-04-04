@@ -47,13 +47,9 @@ local function OnDeployItem(player,data)
                     end
                     -- update strings
                     if GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)] then
-                        giver.components.questgiver.talking.near = {}
-                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].NEAR) do
-                            table.insert(giver.components.questgiver.talking.near,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-                        end
-                        giver.components.questgiver.talking.far = {}
-                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].FAR) do
-                            table.insert(giver.components.questgiver.talking.far,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- if there is no %i in the string, string.format wont change the string
+                        giver.components.questgiver.talking.examine = {}
+                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].EXAMINE) do
+                            table.insert(giver.components.questgiver.talking.examine,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
                         end
                     end
                     giver:DoTaskInTime(0.1,function(giver) giver.components.questgiver:CheckQuests() end)
@@ -76,13 +72,9 @@ local function OnStructureBuild(player,data) -- data.item and data.recipe
                     giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 1
                     -- update strings
                     if GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)] then
-                        giver.components.questgiver.talking.near = {}
-                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].NEAR) do
-                            table.insert(giver.components.questgiver.talking.near,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-                        end
-                        giver.components.questgiver.talking.far = {}
-                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].FAR) do
-                            table.insert(giver.components.questgiver.talking.far,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- if there is no %i in the string, string.format wont change the string
+                        giver.components.questgiver.talking.examine = {}
+                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].EXAMINE) do
+                            table.insert(giver.components.questgiver.talking.examine,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
                         end
                     end
                     giver:DoTaskInTime(0.1,function(giver) giver.components.questgiver:CheckQuests() end)
@@ -102,11 +94,8 @@ local function InitEmoteQuest(giver) -- #GLOBAL.AllPlayers is only players in on
     giver.components.questgiver.customstore = GLOBAL.GetRandomItem(Emotions)
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,num,GLOBAL.tostring(giver.components.questgiver.customstore.str),timer)) -- add information about what emotion is wanted to the strings, which contain "%s"
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,GLOBAL.tostring(giver.components.questgiver.customstore.str),num,timer))
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,num,GLOBAL.tostring(giver.components.questgiver.customstore.str),timer)) -- add information about what emotion is wanted to the strings, which contain "%s"
         end
         for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP) do
             table.insert(giver.components.questgiver.talking.wantskip,string.format(entry,GLOBAL.tostring(giver.components.questgiver.customstore.str)))
@@ -176,11 +165,8 @@ local function InitHousesQuest(giver)
     local reached = giver.components.questgiver.questnumberreached 
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,reached,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,reached,num)) -- if there is no %i in the string, string.format wont change the string
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,reached,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
         end
         giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
         giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
@@ -207,11 +193,8 @@ local function InitPigHatsQuest(giver)
     giver.components.questgiver.questnumber = num
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,num)) -- if there is no %i in the string, string.format wont change the string
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
         end
         for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP) do
             table.insert(giver.components.questgiver.talking.wantskip,string.format(entry,num))
@@ -261,11 +244,8 @@ local function InitWallQuest(giver)
     local reached = giver.components.questgiver.questnumberreached 
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,reached,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,reached,num)) -- if there is no %i in the string, string.format wont change the string
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,reached,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
         end
         giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
         giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
@@ -291,11 +271,8 @@ local function InitTeenbirdQuest(giver)
     giver.components.questgiver.questdiff = 2 + num -- 3 or 4 diff
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,num)) 
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,num)) -- if there is no %i in the string, string.format wont change the string
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,num)) 
         end
         giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
         giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
@@ -312,15 +289,13 @@ local function CheckTeenbirdQuest(giver)
 end
 
 local function InitCritterQuest(giver)
+    local questname = giver.components.questgiver.questname
     local critters = {"critter_kitten", "critter_puppy", "critter_lamb", "critter_dragonling", "critter_glomling", "critter_perdling"}
     giver.components.questgiver.customstore = GLOBAL.GetRandomItem(critters) -- choose a random critter
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,giver.components.questgiver.customstore)) 
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,giver.components.questgiver.customstore)) 
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,giver.components.questgiver.customstore)) 
         end
         giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
         giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
@@ -359,24 +334,23 @@ end
 -- initfn                 (function) A function that is called once directly after starting the quest. Here you can spawn something or set some values for the quest.
 -- animationfn            (function) Is called shortly before releasing the reward. You can make it nil for no animation of "default" for the default animation. For default currently supported are pigking and pigman.
 -- customstore            (any)      Can be anything, EXCEPT an object/instance. You can use it to store your custom information. Eg. for the emote quest, I store the ranomly chosen emotion in this. You can also save this to store a character prefab, so only this character can solve your quest or whatever.
--- talking                (strings)  talking={near={},far={},solved={},wantskip={}}. In the tables near, far, solved, wantskip, you can add strings the questgiver should say when a player goes near him, leaves him, when the quest is solved or to ask if the player really wants to skip the quest. A random string form the list is chosen each time. Of course you can also fill it during your initfn. If you fill them in initfn, better let them empty in global QUESTS.
--- skippable              (boolean)  true or false (true by default). If according to modsettings quests are skippable and this skippable entry is not false, the quest will be skippable by perfomring three times within 30 seconds the Annoyed emotion. If not "false", the skippable entry will be set to numbers, to count the times you made the Annoyed animation. So to check if a quest is skippable do a ~=false check.
+-- talking                (strings)  talking={examine={},solved={},wantskip={},skipped={}}. In the tables examine, solved, wantskip, you can add strings the questgiver should say when a player examines him near, when the quest is solved or to ask if the player really wants to skip the quest. A random string form the list is chosen each time. Of course you can also fill it during your initfn, if you want variable strings.-- skippable              (boolean)  true or false (true by default). If according to modsettings quests are skippable and this skippable entry is not false, the quest will be skippable by perfomring three times within 30 seconds the Annoyed emotion. If not "false", the skippable entry will be set to numbers, to count the times you made the Annoyed animation. So to check if a quest is skippable do a ~=false check.
 -- onetime                (boolean)  true or false (nil-> false). If true, this quest at this questgiver can only be solved one time, even it loopquests is active. Eg. if quest is destroy a statue. You can only destroy it once.         
 -- periodicfn             (function) This function will be called periodically with periodictimes, starting after the initfn. You can eg. use it to call CheckQuest. If possible better use an event to check quests or the automatic check when a player goes near the questgiver! But if both is not possible, use this. The api mod will save and load the task automatically and also cancel it, if the quest is solved/skipped.
 -- periodictimes          (float)    1 -> call it every 1 second.
--- whensayfn              (function) this function is called everytime shorlty before the questgiver is saying something. params: giver,kind,str. kind can be "near","far","solved","wantskip" and "skipped". str is the string he will say. Here you could add your custom talking sound/animation. Make sure it is compatible to your animationfn, which is played when solved!
+-- whensayfn              (function) this function is called everytime shorlty before the questgiver is saying something. params: giver,kind,str. kind can be "examine","solved","wantskip" and "skipped". str is the string he will say. Here you could add your custom talking sound/animation. Make sure it is compatible to your animationfn, which is played when solved!
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
 
-local emotequest = {questname="Emote",skippable=true,questdiff=1,questnumber=1,questtimer=0.5,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitEmoteQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore={{str="Dance",anims={"emoteXL_pre_dance0","emoteXL_loop_dance0"}},{str="Kiss",anims={"emoteXL_kiss"}},{str="Bonesaw",anims={"emoteXL_bonesaw"}},{str="Angry",anims={"emoteXL_angry"}},{str="Happy",anims={"emoteXL_happycheer"}},{str="Pose",anims={"emote_strikepose"}},{str="Wave",anims={"emoteXL_waving1","emoteXL_waving1"}},{str="Facepalm",anims={"emoteXL_facepalm"}},{str="Joy",anims={"research"}},{str="Cry",anims={"emoteXL_sad"}},{str="Annoyed",anims={"emoteXL_annoyed"}},{str="Bye",anims={"emoteXL_waving3","emoteXL_waving4"}}},}
+local emotequest = {questname="Emote",skippable=true,questdiff=1,questnumber=1,questtimer=0.5,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitEmoteQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore={{str="Dance",anims={"emoteXL_pre_dance0","emoteXL_loop_dance0"}},{str="Kiss",anims={"emoteXL_kiss"}},{str="Bonesaw",anims={"emoteXL_bonesaw"}},{str="Angry",anims={"emoteXL_angry"}},{str="Happy",anims={"emoteXL_happycheer"}},{str="Pose",anims={"emote_strikepose"}},{str="Wave",anims={"emoteXL_waving1","emoteXL_waving1"}},{str="Facepalm",anims={"emoteXL_facepalm"}},{str="Joy",anims={"research"}},{str="Cry",anims={"emoteXL_sad"}},{str="Annoyed",anims={"emoteXL_annoyed"}},{str="Bye",anims={"emoteXL_waving3","emoteXL_waving4"}}},}
 for i=1,GetModConfigData("number") do -- add the emote quest x times. IMPORTANT: if adding entries with the same questname, keep also all other values the same! You can variate them in the initfn instead!
     table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, emotequest)
 end
-table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="BuildPighouses",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitHousesQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
-table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="BuildWall",skippable=true,questdiff=2,questnumber=100,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitWallQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil}) -- -- depending on kind of wall, questnumberreached will be increased by different values
-table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="PigHats",skippable=true,questdiff=1,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckHats,rewardfn="default",initfn=InitPigHatsQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
-table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Teenbird",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckTeenbirdQuest,rewardfn="default",initfn=InitTeenbirdQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
-table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Critter",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckCritterQuest,rewardfn="default",initfn=InitCritterQuest,animationfn="default",talking={near={},far={},solved={},wantskip={},skipped={}},customstore=nil})
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="BuildPighouses",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitHousesQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore=nil})
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="BuildWall",skippable=true,questdiff=2,questnumber=100,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitWallQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore=nil}) -- -- depending on kind of wall, questnumberreached will be increased by different values
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="PigHats",skippable=true,questdiff=1,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckHats,rewardfn="default",initfn=InitPigHatsQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore=nil})
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Teenbird",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckTeenbirdQuest,rewardfn="default",initfn=InitTeenbirdQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore=nil})
+table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {questname="Critter",skippable=true,questdiff=3,questnumber=1,questtimer=nil,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn=CheckCritterQuest,rewardfn="default",initfn=InitCritterQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore=nil})
 
 
 

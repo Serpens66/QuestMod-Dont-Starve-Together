@@ -648,6 +648,27 @@ if GLOBAL.TUNING.QUESTSMOD and type(GLOBAL.TUNING.QUESTSMOD.QUESTS)=="table" the
     end
 end
 
+-- mod the examine action so it is pushing an event and mutes the player if examining a questgiver
+local _LOOKATfn = GLOBAL.ACTIONS.LOOKAT.fn
+GLOBAL.ACTIONS.LOOKAT.fn = function(act)
+    local targ = act.target or act.invobject
+    if targ~= nil then
+        targ:PushEvent("questmod:examined",{player=act.doer})
+        if targ:HasTag("questgiver") and targ.components and targ.components.talker and targ:GetDistanceSqToInst(act.doer) <= math.pow(10,2) then -- if directly next to a questgiver, not the player should say sth, but the questgiver
+            return -- no examination talking
+        else
+            return _LOOKATfn(act)
+        end
+    end
+    return _LOOKATfn(act)
+end
+
+local function OnExamined(inst,data)
+    if data and data.player and inst and inst:HasTag("questgiver") and inst.components and inst.components.talker and inst:GetDistanceSqToInst(data.player) <= math.pow(10,2) then
+        inst.components.questgiver:Examination(data.player) --is called it the player is examine the questgiver while standing near him (distance 10)
+    end
+end
+
 for i,giverprefab in ipairs(questgivers) do
     AddPrefabPostInit(giverprefab,function(inst)
         
@@ -681,6 +702,9 @@ for i,giverprefab in ipairs(questgivers) do
             inst:AddComponent("questgiver")
             inst:AddTag("questgiver")
         end
+        
+        inst:ListenForEvent("questmod:examined", OnExamined)
+        
         if not GLOBAL.table.contains(GLOBAL.TUNING.QUESTSMOD.GIVERS,inst) then
             table.insert(GLOBAL.TUNING.QUESTSMOD.GIVERS,inst)
         end

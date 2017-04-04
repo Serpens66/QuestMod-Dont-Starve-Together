@@ -1,5 +1,5 @@
 name = "QuestsHunt"
-description = "Needs QuestAPI Mod\n\nThis mod adds for nearly every surface mob a -hunt x prefab- quest to the pigking.\nIn settings you can choose how many such quests and for what mobs you want them.\nThe quests get harder the more days you survived and also fit to the current season.\nThe mobs won't spawn, so you must find regular ones." 
+description = "Needs QuestAPI Mod\n\nThis mod adds for nearly every surface mob a -hunt x prefab- quest to the pigking.\nIn settings you can choose how many such quests and for what mobs you want them.\nThe quests get harder the more days you survived and also fit to the current season.\nThe mobs won't spawn, so you must find regular ones. Mobs killed by your followers are also counted" 
 author = "Serpens"
 forumthread = ""
 

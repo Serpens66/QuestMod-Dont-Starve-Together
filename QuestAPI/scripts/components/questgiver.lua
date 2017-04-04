@@ -110,7 +110,7 @@ end
 
 local function GiveQuestLoot(questkeeper,questname,player) -- player is only needed for spawning the reward in direction of the player. so not mandatory
     local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
-    local defaultstrings = strings and strings.SOLVED or STRINGS.QUESTSMOD.DEFAULTSOLVED -- standard solved strings
+    local defaultstrings = strings and strings.SOLVED and next(strings.SOLVED) and strings.SOLVED or STRINGS.QUESTSMOD.DEFAULTSOLVED -- standard solved strings
     local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.solved)=="table" and next(questkeeper.components.questgiver.talking.solved) and questkeeper.components.questgiver.talking.solved or defaultstrings)
     if str~="" then
         if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
@@ -258,68 +258,20 @@ end
 local function TalkNear(questkeeper,player) -- give hints about "quests" or give reward
     print("questgiver: TalkNear "..tostring(questkeeper.components.questgiver and questkeeper.components.questgiver.questname or "nichts"))
     local questname = questkeeper.components.questgiver.questname
-    local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
-    local defaultstrings = strings and strings.NEAR or {questname} -- if not strings are defined, use questname
     if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then 
         CheckIfQuestFinished(questkeeper) -- calls also triggerreward , but only if a player is in range! .. which should be the case when talknear... nevermind, it does not hurt this way 
     elseif questname~=nil and questkeeper.components.questgiver.queststatus=="finished" then -- 
         TriggerReward(questkeeper,player,questname)
-    end
-    if ((questkeeper.prefab=="pigking" and questkeeper.components.trader:GetDebugString()=="true") or questkeeper.prefab~="pigking") then -- say nothing, if pigking is sleeping
-        local str = ""
-        if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then
-            str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.near)=="table" and next(questkeeper.components.questgiver.talking.near) and questkeeper.components.questgiver.talking.near or defaultstrings)
-        elseif questname==nil and not next(questkeeper.components.questgiver.questlist) then -- if no quest left (if questloop is active, the questlist won't be empty)
-            str = GetRandomItem(STRINGS.QUESTSMOD.NOMOREQUEST)
-            if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
-                questkeeper.components.talker.colour = Vector3(1, 1, 1) 
-                questkeeper["mynetvarQuestsR"]:set(255) 
-                questkeeper["mynetvarQuestsG"]:set(255)
-                questkeeper["mynetvarQuestsB"]:set(255)
-            end
-        elseif questname==nil and next(questkeeper.components.questgiver.questlist) then -- next quest will start in x days
-            local days = 0.001 -- 0 will result in a netagive 0 ...
-            if questkeeper.components.questgiver.nextquesttask~=nil then
-                days = GetTaskRemaining(questkeeper.components.questgiver.nextquesttask)
-            end
-            str = string.format(GetRandomItem(STRINGS.QUESTSMOD.NEXTQUESTIN),days/TUNING.TOTAL_DAY_TIME,1)
-            if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
-                questkeeper.components.talker.colour = Vector3(1, 1, 1) 
-                questkeeper["mynetvarQuestsR"]:set(255) 
-                questkeeper["mynetvarQuestsG"]:set(255)
-                questkeeper["mynetvarQuestsB"]:set(255)
-            end
-        end
-        if str~="" then
-            if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
-                str = string.upper(str)
-            end
-            WhenSay(questkeeper,"near",str) -- is calling the Say() function
-            if questkeeper.prefab=="pigking" then-- and math.random()>0.3 then 
-                questkeeper.SoundEmitter:PlaySound("dontstarve/pig/grunt")
-            end
-        end
     end
 end
 
 local function TalkFar(questkeeper) -- player is unknown
     print("questgiver: TalkFar")
     local questname = questkeeper.components.questgiver.questname
-    local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
-    local defaultstrings = strings and strings.FAR or {questname} -- if not strings are defined, use questname
     if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then 
         CheckIfQuestFinished(questkeeper) -- calls also triggerreward  , but only if a player is in range!
     elseif questname~=nil and questkeeper.components.questgiver.queststatus=="finished" then
         TriggerReward(questkeeper,nil,questname)
-    end
-    if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" and ((questkeeper.prefab=="pigking" and questkeeper.components.trader:GetDebugString()=="true") or questkeeper.prefab~="pigking") then
-        local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.far)=="table" and next(questkeeper.components.questgiver.talking.far) and questkeeper.components.questgiver.talking.far or defaultstrings)
-        if str~="" then
-            if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
-                str = string.upper(str)
-            end
-            WhenSay(questkeeper,"far",str) -- is calling the Say() function
-        end
     end
 end
 
@@ -342,7 +294,7 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     self.rewardfn = nil
     self.animationfn = nil
     self.customstore = nil
-    self.talking = {near={},far={},solved={},wantskip={},skipped={}}
+    self.talking = {examine={},solved={},wantskip={},skipped={}}
     self.skippable = true
     self.nextquesttask = nil
     self.nextquesttasktimeleft = nil
@@ -374,6 +326,57 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     -- init wird offenbar immer aufgerufen, teilweise auch bis zu 3 mal -.-
 end)
 
+-- is called it the player is examine the questgiver while standing near him (distance 10)
+function QuestGiver:Examination(player) -- questgiver should talk about the quest
+    local questname = self.questname
+    local questkeeper = self.inst
+    
+    if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then 
+        CheckIfQuestFinished(questkeeper) -- calls also triggerreward , but only if a player is in range! .. which should be the case when talknear... nevermind, it does not hurt this way 
+    elseif questname~=nil and questkeeper.components.questgiver.queststatus=="finished" then -- 
+        TriggerReward(questkeeper,player,questname)
+    end
+    
+    local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
+    local defaultstrings = strings and strings.EXAMINE and next(strings.EXAMINE) and strings.EXAMINE or {questname} -- if not strings are defined, use questname
+        
+    if ((questkeeper.prefab=="pigking" and questkeeper.components.trader:GetDebugString()=="true") or questkeeper.prefab~="pigking") then -- say nothing, if pigking is sleeping
+        local str = ""
+        if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then
+            str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.examine)=="table" and next(questkeeper.components.questgiver.talking.examine) and questkeeper.components.questgiver.talking.examine or defaultstrings)
+        elseif questname==nil and not next(questkeeper.components.questgiver.questlist) then -- if no quest left (if questloop is active, the questlist won't be empty)
+            str = GetRandomItem(STRINGS.QUESTSMOD.NOMOREQUEST)
+            if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
+                questkeeper.components.talker.colour = Vector3(1, 1, 1) 
+                questkeeper["mynetvarQuestsR"]:set(255) 
+                questkeeper["mynetvarQuestsG"]:set(255)
+                questkeeper["mynetvarQuestsB"]:set(255)
+            end
+        elseif questname==nil and next(questkeeper.components.questgiver.questlist) then -- next quest will start in x days
+            local days = 0.001 -- 0 will result in a netagive 0 ...
+            if questkeeper.components.questgiver.nextquesttask~=nil then
+                days = GetTaskRemaining(questkeeper.components.questgiver.nextquesttask)
+            end
+            str = string.format(GetRandomItem(STRINGS.QUESTSMOD.NEXTQUESTIN),days/TUNING.TOTAL_DAY_TIME,1)
+            if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
+                questkeeper.components.talker.colour = Vector3(1, 1, 1) 
+                questkeeper["mynetvarQuestsR"]:set(255) 
+                questkeeper["mynetvarQuestsG"]:set(255)
+                questkeeper["mynetvarQuestsB"]:set(255)
+            end
+        end
+        if str~="" then
+            if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
+                str = string.upper(str)
+            end
+            WhenSay(questkeeper,"examine",str) -- is calling the Say() function
+            if questkeeper.prefab=="pigking" then-- and math.random()>0.3 then 
+                questkeeper.SoundEmitter:PlaySound("dontstarve/pig/grunt")
+            end
+        end
+    end
+end
+
 function QuestGiver:CheckQuests()
     CheckIfQuestFinished(self.inst)
 end
@@ -403,7 +406,7 @@ function QuestGiver:QuestResett()
     self.rewardfn = nil
     self.animationfn = nil
     self.customstore = nil
-    self.talking = {near={},far={},solved={},wantskip={},skipped={}}
+    self.talking = {examine={},solved={},wantskip={},skipped={}}
     self.skippable = true
     self.onetime = nil
     self.periodictimes = 5
@@ -424,7 +427,7 @@ function QuestGiver:WantSkipQuest() -- quest if quest skipping is allowed and co
         self.inst.components.questgiver.skippable = type(self.inst.components.questgiver.skippable)~="number" and 1 or self.inst.components.questgiver.skippable + 1
         if self.inst.components.questgiver.skippable == 2 then
             local strings = STRINGS.QUESTSMOD[string.upper(self.questname)]
-            local defaultstrings = strings and strings.WANTSKIP or STRINGS.QUESTSMOD.DEFAULTWANTSKIP
+            local defaultstrings = strings and strings.WANTSKIP and next(strings.WANTSKIP) and strings.WANTSKIP or STRINGS.QUESTSMOD.DEFAULTWANTSKIP
             local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.wantskip)=="table" and next(questkeeper.components.questgiver.talking.wantskip) and questkeeper.components.questgiver.talking.wantskip or defaultstrings)
             if str~="" then
                 if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
@@ -439,7 +442,7 @@ function QuestGiver:WantSkipQuest() -- quest if quest skipping is allowed and co
             self.inst.unskipptask = self.inst:DoTaskInTime(15,function(inst) inst.components.questgiver.skippable = 0 end) -- make it 0 after 15 seconds, so you should do the annyoed emotion 3 times within ~ 30 seconds
         elseif self.inst.components.questgiver.skippable >= 3 then
             local strings = STRINGS.QUESTSMOD[string.upper(self.questname)]
-            local defaultstrings = strings and strings.SKIPPED or STRINGS.QUESTSMOD.DEFAULTSKIPPED
+            local defaultstrings = strings and strings.SKIPPED and next(strings.SKIPPED) and strings.SKIPPED or STRINGS.QUESTSMOD.DEFAULTSKIPPED
             local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.skipped)=="table" and next(questkeeper.components.questgiver.talking.skipped) and questkeeper.components.questgiver.talking.skipped or defaultstrings)
             if str~="" then
                 if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
@@ -555,7 +558,7 @@ function QuestGiver:OnLoad(data)
     self.rewardfn = data and data.rewardfn or nil
     self.animationfn = data and data.animationfn or nil
     self.customstore = data and data.customstore or nil
-    self.talking = data and data.talking or {near={},far={},solved={},wantskip={},skipped={}}
+    self.talking = data and data.talking or {examine={},solved={},wantskip={},skipped={}}
     self.skippable = data and data.skippable or true
     self.nextquesttasktimeleft = data and data.nextquesttasktimeleft or nil
     self.onetime = data and data.onetime or nil

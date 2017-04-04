@@ -8,18 +8,6 @@ local assets =
 }
 
 
-local function OnTurnOn(inst)
-    inst.components.talker:ShutUp()
-    local strings = {"Welcome to my shop...","Whatever you nneed...","I have various things to sell...","Nice to see you again...","Feel free to look around...","","",}
-    inst.components.talker:Say(GetRandomItem(strings))
-end
-
-local function OnTurnOff(inst)
-    inst.components.talker:ShutUp()
-    local strings = {"Be seeing you...","Pleasure doing business with you...","You're always welcome...","Come back anytime...","","","","","","",}
-    inst.components.talker:Say(GetRandomItem(strings))
-end
-
 
 local function fn()
     local inst = CreateEntity()
@@ -69,8 +57,6 @@ local function fn()
     
 	inst:AddComponent("prototyper")
     inst.components.prototyper.trees = TUNING.PROTOTYPER_TREES.SHOPPING_ONE
-	inst.components.prototyper.onturnon = OnTurnOn -- overwritten in modmain now, to give hints about quests
-	inst.components.prototyper.onturnoff = OnTurnOff
 
     
     return inst
