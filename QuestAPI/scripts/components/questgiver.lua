@@ -110,7 +110,7 @@ end
 
 local function GiveQuestLoot(questkeeper,questname,player) -- player is only needed for spawning the reward in direction of the player. so not mandatory
     local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
-    local defaultstrings = strings and strings.SOLVED and next(strings.SOLVED) and strings.SOLVED or STRINGS.QUESTSMOD.DEFAULTSOLVED -- standard solved strings
+    local defaultstrings = strings and type(strings.SOLVED)=="table" and next(strings.SOLVED) and strings.SOLVED or STRINGS.QUESTSMOD.DEFAULTSOLVED -- standard solved strings
     local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.solved)=="table" and next(questkeeper.components.questgiver.talking.solved) and questkeeper.components.questgiver.talking.solved or defaultstrings)
     if str~="" then
         if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
@@ -338,14 +338,15 @@ function QuestGiver:Examination(player) -- questgiver should talk about the ques
     end
     
     local strings = questname and STRINGS.QUESTSMOD[string.upper(questname)] or nil
-    local defaultstrings = strings and strings.EXAMINE and next(strings.EXAMINE) and strings.EXAMINE or {questname} -- if not strings are defined, use questname
+    local defaultstrings = strings and type(strings.EXAMINE)=="table" and next(strings.EXAMINE) and strings.EXAMINE or {questname} -- if not strings are defined, use questname
         
     if ((questkeeper.prefab=="pigking" and questkeeper.components.trader:GetDebugString()=="true") or questkeeper.prefab~="pigking") then -- say nothing, if pigking is sleeping
         local str = ""
         if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then
             str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.examine)=="table" and next(questkeeper.components.questgiver.talking.examine) and questkeeper.components.questgiver.talking.examine or defaultstrings)
         elseif questname==nil and not next(questkeeper.components.questgiver.questlist) then -- if no quest left (if questloop is active, the questlist won't be empty)
-            str = GetRandomItem(STRINGS.QUESTSMOD.NOMOREQUEST)
+            str = type(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)])=="table" and STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT
+            str = GetRandomItem(str)
             if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
                 questkeeper.components.talker.colour = Vector3(1, 1, 1) 
                 questkeeper["mynetvarQuestsR"]:set(255) 
@@ -357,7 +358,8 @@ function QuestGiver:Examination(player) -- questgiver should talk about the ques
             if questkeeper.components.questgiver.nextquesttask~=nil then
                 days = GetTaskRemaining(questkeeper.components.questgiver.nextquesttask)
             end
-            str = string.format(GetRandomItem(STRINGS.QUESTSMOD.NEXTQUESTIN),days/TUNING.TOTAL_DAY_TIME,1)
+            str = type(STRINGS.QUESTSMOD.NEXTQUESTIN[string.upper(questkeeper.prefab)])=="table" and STRINGS.QUESTSMOD.NEXTQUESTIN[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NEXTQUESTIN.DEFAULT
+            str = string.format(GetRandomItem(str),days/TUNING.TOTAL_DAY_TIME)
             if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
                 questkeeper.components.talker.colour = Vector3(1, 1, 1) 
                 questkeeper["mynetvarQuestsR"]:set(255) 
@@ -427,7 +429,7 @@ function QuestGiver:WantSkipQuest() -- quest if quest skipping is allowed and co
         self.inst.components.questgiver.skippable = type(self.inst.components.questgiver.skippable)~="number" and 1 or self.inst.components.questgiver.skippable + 1
         if self.inst.components.questgiver.skippable == 2 then
             local strings = STRINGS.QUESTSMOD[string.upper(self.questname)]
-            local defaultstrings = strings and strings.WANTSKIP and next(strings.WANTSKIP) and strings.WANTSKIP or STRINGS.QUESTSMOD.DEFAULTWANTSKIP
+            local defaultstrings = strings and type(strings.WANTSKIP)=="table" and next(strings.WANTSKIP) and strings.WANTSKIP or STRINGS.QUESTSMOD.DEFAULTWANTSKIP
             local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.wantskip)=="table" and next(questkeeper.components.questgiver.talking.wantskip) and questkeeper.components.questgiver.talking.wantskip or defaultstrings)
             if str~="" then
                 if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
@@ -442,7 +444,7 @@ function QuestGiver:WantSkipQuest() -- quest if quest skipping is allowed and co
             self.inst.unskipptask = self.inst:DoTaskInTime(15,function(inst) inst.components.questgiver.skippable = 0 end) -- make it 0 after 15 seconds, so you should do the annyoed emotion 3 times within ~ 30 seconds
         elseif self.inst.components.questgiver.skippable >= 3 then
             local strings = STRINGS.QUESTSMOD[string.upper(self.questname)]
-            local defaultstrings = strings and strings.SKIPPED and next(strings.SKIPPED) and strings.SKIPPED or STRINGS.QUESTSMOD.DEFAULTSKIPPED
+            local defaultstrings = strings and type(strings.SKIPPED)=="table" and next(strings.SKIPPED) and strings.SKIPPED or STRINGS.QUESTSMOD.DEFAULTSKIPPED
             local str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.skipped)=="table" and next(questkeeper.components.questgiver.talking.skipped) and questkeeper.components.questgiver.talking.skipped or defaultstrings)
             if str~="" then
                 if questkeeper.prefab=="pigking" then -- always captial letters if pigking. If not, take care of your string in your questmod ;)
@@ -741,6 +743,45 @@ function QuestGiver:StartNextQuest()
     
     local k = 1
     for i,name in ipairs(self.solvedonetimequests) do -- if there are onetime quests, remove them form all lists. Do not remove name from solvedonetimequests, cause it could be that the quest is added to QUEST at next gamestart again.
+        k = 1
+        while k~=#TUNING.QUESTSMOD.QUESTS + 1 do
+            if TUNING.QUESTSMOD.QUESTS[k].questname == name and TUNING.QUESTSMOD.QUESTS[k].questgiver==self.inst.prefab then -- only remove it from QUESTS, if this is the questgiver
+                table.remove(TUNING.QUESTSMOD.QUESTS,k)
+            else
+                k = k + 1
+            end
+        end
+        k = 1
+        while k~=#self.questlist + 1 do
+            if self.questlist[k].questname == name then
+                table.remove(self.questlist,k)
+            else
+                k = k + 1
+            end
+        end
+        k = 1
+        while k~=#self.questlistSave + 1 do
+            if self.questlistSave[k].questname == name then
+                table.remove(self.questlistSave,k)
+            else
+                k = k + 1
+            end
+        end
+    end
+    
+    
+    for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do
+        if quest.conditions then
+            for i,name in pairs(quest.conditions) do
+                if table.contains(self.solvedonetimequests,name) then
+                    
+                end
+            end
+        end
+    end
+    
+    k = 1
+    for i,name in ipairs(self.solvedonetimequests) do -- remove quests that do not meet the conditions from questlist and add them again at end of function
         k = 1
         while k~=#TUNING.QUESTSMOD.QUESTS + 1 do
             if TUNING.QUESTSMOD.QUESTS[k].questname == name and TUNING.QUESTSMOD.QUESTS[k].questgiver==self.inst.prefab then -- only remove it from QUESTS, if this is the questgiver

@@ -94,8 +94,13 @@ GLOBAL.STRINGS.QUESTSMOD.SHOP.OFF = {"Be seeing you...","Pleasure doing business
 GLOBAL.STRINGS.QUESTSMOD.SHOP.SHELTER = {"Thanks for the shelter!"}
 
 -- questgiver strings
-GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST = {"Sorry, I don't have more tasks for you.","That's all, thanks for helping.","","","",""}
-GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN = {"Come back in %.2f days for a new job.","I'll have another task for you in %.2f days.","","",""}
+if not GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST then
+    GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST = {}
+end
+GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT = {"Sorry, I don't have more tasks for you.","That's all, thanks for helping."}
+GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN.DEFAULT = {"Come back in %.2f days for a new job.","I'll have another task for you in %.2f days."}
+GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST.PIGKING = {}
+GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN.PIGKING ={}
 
 GLOBAL.STRINGS.QUESTSMOD.DEFAULTSOLVED = {"THANK!","WORK GOOD!","YOU FRIEND!","REWARD!","YOU DESERVE!","WELL DONE!",}
 GLOBAL.STRINGS.QUESTSMOD.DEFAULTWANTSKIP = {"Do you really want to skip this quest?"}
