@@ -37,7 +37,7 @@ local function GetAveragePlayerAgeInDays()
 	return average
 end
 
-
+local treeseeds = {"pinecone","twiggy_nut","acorn"}
 local function OnDeployItem(player,data)
     if player~=nil and data~=nil and type(data)=="table" and type(player)=="table" then
         print("Quest Debug: player ".._G.tostring(player.prefab).." deployed: ".._G.tostring(data.prefab))
@@ -45,21 +45,15 @@ local function OnDeployItem(player,data)
     if data and data then 
         local x, y, z = player.Transform:GetWorldPosition()
         local questgivers = TheSim:FindEntities(x, y, z, 100, nil, nil, {"questgiver"}) 
-        if string.match(data.prefab,"pinecone") then
+        if GLOBAL.table.contains(treeseeds,data.prefab) then
             for i,giver in ipairs(questgivers) do
                 if giver.components and giver.components.questgiver and giver.components.questgiver.questname=="Reforester" then
-                    if data.prefab=="pinecone" then
-                        giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 1
-                    end
+                    giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 1
                     -- update strings
                     if GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)] then
-                        giver.components.questgiver.talking.near = {}
-                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].NEAR) do
-                            table.insert(giver.components.questgiver.talking.near,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-                        end
-                        giver.components.questgiver.talking.far = {}
-                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].FAR) do
-                            table.insert(giver.components.questgiver.talking.far,string.format(entry,giver.components.questgiver.questnumberreached,giver.components.questgiver.questnumber)) -- if there is no %i in the string, string.format wont change the string
+                        giver.components.questgiver.talking.examine = {}
+                        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)].EXAMINE) do
+                            table.insert(giver.components.questgiver.talking.examine,string.format(entry,giver.components.questgiver.questnumber-giver.components.questgiver.questnumberreached)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
                         end
                     end
                     giver:DoTaskInTime(0.1,function(giver) giver.components.questgiver:CheckQuests() end)
@@ -90,39 +84,37 @@ local function CheckSleepOver(giver)
 end
 
 local function InitReforester(giver)
-
-end
-
-local function CheckReforester(giver)
-    local l = {1,2,3}
+    -- generate random number
+    local l = {10,20,30}
     local age = GetAveragePlayerAgeInDays()
     if age <=25 then
         l = {10}
     elseif age <60 then
         l = {10,20}
     elseif age < 100 then
-        l = {10,20,20,30}
+        l = {20,30,30,40}
     elseif age >= 100 then
-        l = {20,30, 40}
+        l = {30,50}
     end
     local questname = giver.components.questgiver.questname
     local num = GLOBAL.GetRandomItem(l)
     giver.components.questgiver.questnumber = num
-    giver.components.questgiver.questdiff = num / 40
+    giver.components.questgiver.questdiff = num / 10
     local reached = giver.components.questgiver.questnumberreached 
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].NEAR) do
-            table.insert(giver.components.questgiver.talking.near,string.format(entry,reached,num)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
-        end
-        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].FAR) do
-            table.insert(giver.components.questgiver.talking.far,string.format(entry,reached,num)) -- if there is no %i in the string, string.format wont change the string
+        for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,num-reached)) -- add information about what emotion is wanted to the strings, which contain "%s" for string or %i for number
         end
         giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
         giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
         giver.components.questgiver.talking.skipped = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SKIPPED
     end
 end
+
+-- local function CheckReforester(giver)
+
+-- end
 
 local function SkinRewardAnim(inst)
     inst.AnimState:PlayAnimation("snap", false)
@@ -132,7 +124,7 @@ local function SkinRewardAnim(inst)
     inst.AnimState:PushAnimation("idle", true)
 
 
-    inst:DoTaskInTime(0.185,function(inst) inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/snap", "skincollector") end)
+    inst:DoTaskInTime(0.2,function(inst) inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/snap", "skincollector") end)
     inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/talk_LP", "skincollector")
     --inst:DoTaskInTime(1,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
 end
@@ -182,8 +174,7 @@ end
 --     initfn=InitCritterQuest,
 --     animationfn="default",
 --     talking={
---         near={},
---         far={},
+--         examine={},
 --         solved={},
 --         wantskip={},
 --         skipped={}
@@ -211,8 +202,7 @@ table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
     initfn=InitSleepOver,
     animationfn=SkinRewardAnim,
     talking= {
-        near= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.NEAR,
-        far= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.FAR,
+        examine= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.EXAMINE,
         solved= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.SOLVED,
         wantskip= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.WANTSKIP,
         skipped= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.SKIPPED
@@ -236,13 +226,12 @@ table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
     rewardfn="default",
     initfn=InitReforester,
     animationfn=SkinRewardAnim,
-    talking={
-        near=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.NEAR,
-        far=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.FAR,
-        solved=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.SOLVED,
-        wantskip=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.WANTSKIP,
-        skipped=GLOBAL.STRINGS.QUESTSMOD.REFORESTER.SKIPPED
-        }
+     talking={
+         examine={},
+         solved={},
+         wantskip={},
+         skipped={}
+         }
     }
 )
 
