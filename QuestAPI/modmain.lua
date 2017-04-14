@@ -309,13 +309,11 @@ AddPlayerPostInit(OnPlayerSpawn)
 local function Doinitquests(world)
     local x,y,z = world.components.playerspawner.GetAnySpawnPoint()
     local spawnpointpos = GLOBAL.Vector3(x ,y ,z )
-    local keepers = TheSim:FindEntities(x, y, z, 20, nil, nil, {"shopkeeper"})
-    if not _G.next(keepers) and (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- if there is no keeper, but there should be one, create one.
+    local keeper = TheSim:FindFirstEntityWithTag("shopkeeper")
+    if not keeper and (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- if there is no keeper, but there should be one, create one.
         GLOBAL.TUNING.questfunctions.SpawnPrefabAtLandPlotNearInst("shopkeeper",spawnpointpos,15,0,15,1,3,3)
-    elseif _G.next(keepers) and not (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- remove them if they are not needed
-        for i,keeper in pairs(keepers) do
-            keeper.Remove()
-        end
+    elseif keeper and not (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- remove them if they are not needed
+        keeper.Remove()
     end
     -- world.components.questworldinfo.stuff2.shopkeeper = keepers -- save the keeper in a component ... think this is not needed
 end

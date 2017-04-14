@@ -8,7 +8,6 @@ local assets =
 }
 
 
-
 local function fn()
     local inst = CreateEntity()
     inst.entity:AddTransform()
@@ -22,10 +21,14 @@ local function fn()
 	shadow:SetSize( 1.75, .75 )
     
     
-    MakeObstaclePhysics(inst, .5)
-    inst.Physics:SetCollisionGroup(COLLISION.OBSTACLES)
-    inst.Physics:CollidesWith(COLLISION.WORLD)
-    inst.Physics:CollidesWith(COLLISION.ITEMS)
+    -- MakeObstaclePhysics(inst, .5)
+    -- inst.Physics:SetCollisionGroup(COLLISION.OBSTACLES)
+    -- inst.Physics:CollidesWith(COLLISION.WORLD)
+    -- inst.Physics:CollidesWith(COLLISION.ITEMS)
+    MakeCharacterPhysics(inst, 100, 0.3) -- mass, radius
+    inst.Physics:SetFriction(.1) -- how long he is sliding
+    inst.Physics:SetDamping(0) -- ?
+    inst.Physics:SetRestitution(1) -- ?
 
     inst.AnimState:SetBank("shop")
     inst.AnimState:SetBuild("shop_basic")
@@ -33,7 +36,6 @@ local function fn()
     
     inst.entity:AddMiniMapEntity()
     inst.MiniMapEntity:SetIcon("shopkeepermap.tex")
-
     
 	inst:AddTag("prototyper")
     inst:AddTag("giftmachine")
