@@ -116,6 +116,8 @@ local function OnEmote(player,data) -- eg customstore=={str="Dance",anims{"emote
     -- {mounted=true,loop=true,tags={["dancing"]},state="idle",beaver=true,anim={["emoteXL_pre_dance0"],["emoteXL_loop_dance0"]},fx=false}
     -- {anim="emoteXL_kiss",mounted=true} , {anim="emoteXL_bonesaw",mounted=true} , {anim="emoteXL_angry",mounted=true}	, {anim="emoteXL_happycheer",mounted=true} , {mounted=true,randomanim=true,anim={["emoteXL_waving1"],["emoteXL_waving2"]}}
     -- {anim="emoteXL_facepalm",mounted=true}, {anim="research",fx=false}joy, {mounted=true,fx="tears",anim="emoteXL_sad",fxdelay=0.56666666666667}, {anim="emoteXL_annoyed",mounted=true}, {mounted=true,randomanim=true,anim={["emoteXL_waving4"],["emoteXL_waving3"]}}
+    -- {fx=false,randomanim=true,anim={{["emote_pre_sit2"],["emote_loop_sit2"]},{["emote_pre_sit4"],["emote_loop_sit4"]}},loop=true}	
+    -- {fx=false,randomanim=true,anim={{["emote_pre_sit1"],["emote_loop_sit1"]},{["emote_pre_sit3"],["emote_loop_sit3"]}},loop=true}	
     if data then
         local okay = false
         local x, y, z = player.Transform:GetWorldPosition() 
@@ -126,9 +128,19 @@ local function OnEmote(player,data) -- eg customstore=={str="Dance",anims{"emote
                     okay = true
                 elseif type(data.anim)=="table" then -- chack also if anim is a table
                     for k,animstringdata in pairs(data.anim) do
-                        for k2,animstring in pairs(giver.components.questgiver.customstore.anims) do
-                            if animstring == animstringdata then
-                                okay = true
+                        if type(animstringdata)=="table" then -- in cae of sit and aquat it is again a table...
+                            for q,stringdata in pairs(animstringdata) do
+                                for k2,animstring in pairs(giver.components.questgiver.customstore.anims) do
+                                    if animstring == stringdata then
+                                        okay = true
+                                    end
+                                end 
+                            end
+                        elseif type(animstringdata)=="string" then
+                            for k2,animstring in pairs(giver.components.questgiver.customstore.anims) do
+                                if animstring == animstringdata then
+                                    okay = true
+                                end
                             end
                         end
                     end
@@ -295,7 +307,7 @@ local function InitCritterQuest(giver)
     -- adjust strings
     if GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)] then
         for k,entry in ipairs(GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].EXAMINE) do
-            table.insert(giver.components.questgiver.talking.examine,string.format(entry,giver.components.questgiver.customstore)) 
+            table.insert(giver.components.questgiver.talking.examine,string.format(entry,GLOBAL.STRINGS.NAMES[string.upper(giver.components.questgiver.customstore)])) 
         end
         giver.components.questgiver.talking.wantskip = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].WANTSKIP 
         giver.components.questgiver.talking.solved = GLOBAL.STRINGS.QUESTSMOD[string.upper(questname)].SOLVED 
@@ -344,7 +356,7 @@ end
 -- HINT about functions: The functions you store here are only saved in this Tuning table. Functions can not be saved in the questgiver component. So if you want to access a function, do it with help of the tuning table.
 
 
-local emotequest = {questname="Emote",skippable=true,questdiff=1,questnumber=1,questtimer=0.5,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitEmoteQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore={{str="Dance",anims={"emoteXL_pre_dance0","emoteXL_loop_dance0"}},{str="Kiss",anims={"emoteXL_kiss"}},{str="Bonesaw",anims={"emoteXL_bonesaw"}},{str="Angry",anims={"emoteXL_angry"}},{str="Happy",anims={"emoteXL_happycheer"}},{str="Pose",anims={"emote_strikepose"}},{str="Wave",anims={"emoteXL_waving1","emoteXL_waving1"}},{str="Facepalm",anims={"emoteXL_facepalm"}},{str="Joy",anims={"research"}},{str="Cry",anims={"emoteXL_sad"}},{str="Annoyed",anims={"emoteXL_annoyed"}},{str="Bye",anims={"emoteXL_waving3","emoteXL_waving4"}}},}
+local emotequest = {questname="Emote",skippable=true,questdiff=1,questnumber=1,questtimer=0.5,talknear=8,talkfar=9,questobject="self",questgiver="pigking",customrewarditems={},customrewardblueprints={},checkfn="reachnumber",rewardfn="default",initfn=InitEmoteQuest,animationfn="default",talking={examine={},solved={},wantskip={},skipped={}},customstore={{str="Dance",anims={"emoteXL_pre_dance0","emoteXL_loop_dance0"}},{str="Kiss",anims={"emoteXL_kiss"}},{str="Bonesaw",anims={"emoteXL_bonesaw"}},{str="Angry",anims={"emoteXL_angry"}},{str="Happy",anims={"emoteXL_happycheer"}},{str="Pose",anims={"emote_strikepose"}},{str="Wave",anims={"emoteXL_waving1","emoteXL_waving1"}},{str="Facepalm",anims={"emoteXL_facepalm"}},{str="Joy",anims={"research"}},{str="Cry",anims={"emoteXL_sad"}},{str="Annoyed",anims={"emoteXL_annoyed"}},{str="Bye",anims={"emoteXL_waving3","emoteXL_waving4"}},{str="Sit",anims={"emote_pre_sit2","emote_loop_sit2","emote_pre_sit4","emote_loop_sit4"}},{str="Squat",anims={"emote_pre_sit1","emote_loop_sit1","emote_pre_sit3","emote_loop_sit3"}}},}
 for i=1,GetModConfigData("number") do -- add the emote quest x times. IMPORTANT: if adding entries with the same questname, keep also all other values the same! You can variate them in the initfn instead!
     table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, emotequest)
 end
