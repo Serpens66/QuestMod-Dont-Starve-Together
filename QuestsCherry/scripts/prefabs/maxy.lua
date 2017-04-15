@@ -2,25 +2,22 @@
 
 local assets =
 {
-    Asset( "ANIM", "anim/skin_collector.zip"),
-    Asset( "IMAGE", "images/map_icons/skin_collector.tex" ),
-	Asset( "ATLAS", "images/map_icons/skin_collector.xml" ),
-    Asset("SOUNDPACKAGE", "sound/skin_collector.fev"),    
-    Asset("SOUND", "sound/skin_collector.fsb"),
+    Asset( "ANIM", "anim/maxy.zip"),
+    --Asset( "IMAGE", "images/map_icons/skin_collector.tex" ),
+	--Asset( "ATLAS", "images/map_icons/skin_collector.xml" ),
 }
 
 
 
 local function ontalk(inst)
-    inst.SoundEmitter:KillSound("skincollector")
+    inst.SoundEmitter:KillSound("maxy")
     inst.AnimState:PlayAnimation("dialog_pre")
     inst.AnimState:PushAnimation("dial_loop")
     inst.AnimState:PushAnimation("dialog_pst", false)
     inst.AnimState:PushAnimation("idle", true)
-
-    inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/talk_LP", "skincollector")
-    inst:DoTaskInTime(3,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
-
+    
+    inst.SoundEmitter:PlaySound("dontstarve/maxwell/talk_LP", "maxy")
+    inst:DoTaskInTime(3,function(inst) inst.SoundEmitter:KillSound("maxy") end)
 end
 
 local function fn()
@@ -34,7 +31,7 @@ local function fn()
     inst.Transform:SetTwoFaced()
     local shadow = inst.entity:AddDynamicShadow()
 	shadow:SetSize( 1.75, .75)
-    inst.Transform:SetScale(.85, .85, .85)
+    inst.Transform:SetScale(1, 1, 1)
     
     
     MakeObstaclePhysics(inst, .5)
@@ -42,17 +39,17 @@ local function fn()
     inst.Physics:CollidesWith(COLLISION.WORLD)
     inst.Physics:CollidesWith(COLLISION.ITEMS)
 
-    inst.AnimState:SetBank("skin_collector")
-    inst.AnimState:SetBuild("skin_collector")
+    inst.AnimState:SetBank("maxwell")
+    inst.AnimState:SetBuild("maxwell_build")
     inst.AnimState:PlayAnimation("idle", true)    
     
 
 	--inst:AddTag("prototyper")
     --inst:AddTag("giftmachine")
-    inst:AddTag("shelter") -- give custom speech in modmain
+    --inst:AddTag("shelter") -- give custom speech in modmain
     inst:AddTag("notarget")
     --inst:AddTag("shopkeeper")
-    inst:AddTag("skin_collector")
+    --inst:AddTag("skin_collector")
 
     inst:AddComponent("questgiver")
     inst:AddTag("questgiver")
@@ -76,16 +73,12 @@ local function fn()
     
 	--inst:AddComponent("prototyper")
     --inst.components.prototyper.trees = TUNING.PROTOTYPER_TREES.SHOPPING_ONE
-	--inst.components.prototyper.onturnon = OnTurnOn -- overwritten in modmain now, to give hints about quests
-	--inst.components.prototyper.onturnoff = OnTurnOff
 
-    local minimap = inst.entity:AddMiniMapEntity()    
-    minimap:SetIcon( "skin_collector.tex" )
+    --local minimap = inst.entity:AddMiniMapEntity()    
+    --minimap:SetIcon( "skin_collector.tex" )
     
     return inst
 end
 
-
-
-return Prefab( "common/objects/skin_collector", fn, assets),
-       MakePlacer( "common/skin_collector_placer", "skin_collector", "skin_collector", "idle")
+return Prefab( "common/objects/maxy", fn, assets),
+       MakePlacer( "common/maxy_placer", "maxwell", "maxwell_build", "idle")

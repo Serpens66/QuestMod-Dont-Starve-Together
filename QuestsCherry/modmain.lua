@@ -10,13 +10,16 @@ print("QUESTSMOD QuestMod")
 
 PrefabFiles = { 
     "skin_collector",
+    "maxy",
 }
 Assets = {
     Asset( "ANIM", "anim/skin_collector.zip"),
     Asset( "IMAGE", "images/map_icons/skin_collector.tex" ),
     Asset( "ATLAS", "images/map_icons/skin_collector.xml" ),
-    Asset("SOUNDPACKAGE", "sound/skin_collector.fev"),    
-    Asset("SOUND", "sound/skin_collector.fsb"),
+    Asset( "SOUNDPACKAGE", "sound/skin_collector.fev"),    
+    Asset( "SOUND", "sound/skin_collector.fsb"),
+
+    Asset( "ANIM", "anim/maxy.zip"),
 }
 
 
@@ -77,7 +80,7 @@ end
 
 local function CheckSleepOver(giver) 
     local x, y, z = giver.components.questgiver.questobject.Transform:GetWorldPosition()
-    local sleepers = GLOBAL.TheSim:FindEntities(x, y, z, 20, {"player","sleeping"})
+    local sleepers = GLOBAL.TheSim:FindEntities(x, y, z, 10, {"player","sleeping"})
     if #sleepers >= giver.components.questgiver.questnumber then
         giver.components.questgiver.queststatus="finished"
     end
@@ -125,8 +128,13 @@ local function SkinRewardAnim(inst)
 
 
     inst:DoTaskInTime(0.2,function(inst) inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/snap", "skincollector") end)
-    inst.SoundEmitter:PlaySound("dontstarve/characters/skincollector/talk_LP", "skincollector")
-    --inst:DoTaskInTime(1,function(inst) inst.SoundEmitter:KillSound("skincollector") end)
+end
+local function MaxyRewardAnim(inst)
+    inst.AnimState:PlayAnimation("smoke")
+    inst.AnimState:PushAnimation("dialog_pre")
+    inst.AnimState:PushAnimation("dial_loop")
+    inst.AnimState:PushAnimation("dialog_pst", false)
+    inst.AnimState:PushAnimation("idle", true)
 end
 ------------------------- ## Quests
 if GLOBAL.TUNING.QUESTSMOD==nil then
@@ -185,7 +193,8 @@ end
 
 table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
     questname="Sleepover",
-    skippable=true, 
+    onetime=true,
+    skippable=false, 
     periodicfn=PeriodicSleepOver, 
     periodictimes=2,
     questdiff=2,
@@ -194,13 +203,13 @@ table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
     talknear=4,
     talkfar=5,
     questobject="self",
-    questgiver="skin_collector",
+    questgiver="maxy",
     customrewarditems={},
     customrewardblueprints={},
     checkfn=CheckSleepOver,
     rewardfn="default",
     initfn=InitSleepOver,
-    animationfn=SkinRewardAnim,
+    animationfn=MaxyRewardAnim,
     talking= {
         examine= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.EXAMINE,
         solved= GLOBAL.STRINGS.QUESTSMOD.SLEEPOVER.SOLVED,
@@ -212,6 +221,8 @@ table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
 
 table.insert(GLOBAL.TUNING.QUESTSMOD.QUESTS, {
     questname="Reforester",
+    conditions={"Sleepover"},
+    onetime=false,
     skippable=true,
     questdiff=2,
     questnumber=100,
@@ -264,12 +275,26 @@ end
 AddPlayerPostInit(OnPlayerSpawn)
 
 local function SpawnSkinCollector(world)
-    local keeper = TheSim:FindFirstEntityWithTag("skin_collector")
+    local collector = TheSim:FindFirstEntityWithTag("skin_collector")
     local beefalo = TheSim:FindFirstEntityWithTag("beefalo")
-    if not keeper and beefalo then -- if there is no keeper, but there should be one, create one.
+    if not collector and beefalo then -- if there is no skinner, but there should be one, create one.
         GLOBAL.TUNING.questfunctions.SpawnPrefabAtLandPlotNearInst("skin_collector",beefalo,15,0,15,1,3,3)
     end
 end
+
+local function SpawnMaxy(world)
+    local x,y,z = world.components.playerspawner.GetAnySpawnPoint()
+    local spawnpointpos = GLOBAL.Vector3(x ,y ,z )
+    local maxies = TheSim:FindEntities(x, y, z, 20, nil, nil, {"maxy"})
+    if not _G.next(maxies) and (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- if there is no keeper, but there should be one, create one.
+        GLOBAL.TUNING.questfunctions.SpawnPrefabAtLandPlotNearInst("maxy",spawnpointpos,15,0,15,1,3,3)
+    elseif _G.next(maxies) and not (GLOBAL.TUNING.QUEST_BLUEPRINTMODE or GLOBAL.TUNING.QUEST_SHOPMODE) then -- remove them if they are not needed
+        for i,maxies in pairs(maxies) do
+            maxies.Remove()
+        end
+    end
+end
+
 
 AddPrefabPostInit("skin_collector", function(inst)
     if not GLOBAL.TheNet:GetIsServer() then 
@@ -277,12 +302,20 @@ AddPrefabPostInit("skin_collector", function(inst)
     end
 end)
 
+AddPrefabPostInit("maxy", function(inst)
+    if not GLOBAL.TheNet:GetIsServer() then 
+        return
+    end
+end)
+
+
 AddPrefabPostInit("world", function(world)
     if not GLOBAL.TheNet:GetIsServer() then 
         return
     end
     if world.ismastersim and world.ismastershard then
-        world:DoTaskInTime(0,function(world) SpawnSkinCollector(world) end) -- spawn a shopkeeper if needed
+        world:DoTaskInTime(0,function(world) SpawnSkinCollector(world) end)
+        world:DoTaskInTime(0,function(world) SpawnMaxy(world) end)
     end
 end)
 
