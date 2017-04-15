@@ -25,9 +25,9 @@ local function fn()
     -- inst.Physics:SetCollisionGroup(COLLISION.OBSTACLES)
     -- inst.Physics:CollidesWith(COLLISION.WORLD)
     -- inst.Physics:CollidesWith(COLLISION.ITEMS)
-    MakeCharacterPhysics(inst, 100, 0.3) -- mass, radius
-    inst.Physics:SetFriction(.1) -- how long he is sliding
-    inst.Physics:SetDamping(0) -- ?
+    MakeCharacterPhysics(inst, 200, .3)
+    inst.Physics:SetFriction(1)
+    inst.Physics:SetDamping(0)
     inst.Physics:SetRestitution(1) -- ?
 
     inst.AnimState:SetBank("shop")
