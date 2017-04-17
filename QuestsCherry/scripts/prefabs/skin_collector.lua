@@ -36,11 +36,16 @@ local function fn()
 	shadow:SetSize( 1.75, .75)
     inst.Transform:SetScale(.85, .85, .85)
     
-    
+    --[[
     MakeObstaclePhysics(inst, .5)
     inst.Physics:SetCollisionGroup(COLLISION.OBSTACLES)
     inst.Physics:CollidesWith(COLLISION.WORLD)
     inst.Physics:CollidesWith(COLLISION.ITEMS)
+    ]]
+    MakeCharacterPhysics(inst, 200, .3)
+    inst.Physics:SetFriction(1)
+    inst.Physics:SetDamping(0)
+    inst.Physics:SetRestitution(1)
 
     inst.AnimState:SetBank("skin_collector")
     inst.AnimState:SetBuild("skin_collector")

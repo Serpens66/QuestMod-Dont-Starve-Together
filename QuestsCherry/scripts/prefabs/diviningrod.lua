@@ -2,22 +2,21 @@
 
 local assets =
 {
-    Asset( "ANIM", "anim/maxy.zip"),
-    Asset( "IMAGE", "images/map_icons/maxy.tex" ),
-    Asset( "ATLAS", "images/map_icons/maxy.xml" ),
+    Asset( "ANIM", "anim/diviningrod.zip"),
+    Asset( "IMAGE", "images/map_icons/rod.tex" ),
+    Asset( "ATLAS", "images/map_icons/rod.xml" ),
 }
 
 
 
 local function ontalk(inst)
-    inst.SoundEmitter:KillSound("maxy")
-    inst.AnimState:PlayAnimation("dialog_pre")
-    inst.AnimState:PushAnimation("dial_loop")
-    inst.AnimState:PushAnimation("dialog_pst", false)
-    inst.AnimState:PushAnimation("idle", true)
-    
-    inst.SoundEmitter:PlaySound("dontstarve/maxwell/talk_LP", "maxy")
-    inst:DoTaskInTime(2.5,function(inst) inst.SoundEmitter:KillSound("maxy") end)
+    inst.SoundEmitter:KillSound("diviningrod")
+
+    local intensity = math.random()
+
+    inst.SoundEmitter:PlaySound("dontstarve/common/diviningrod_ping", "ping")
+    inst.SoundEmitter:SetParameter("ping", "intensity", intensity)
+    inst:DoTaskInTime(3,function(inst) inst.SoundEmitter:KillSound("diviningrod") end)
 end
 
 local function fn()
@@ -28,9 +27,9 @@ local function fn()
     inst.entity:AddSoundEmitter()
     inst.entity:AddNetwork()
     
-    inst.Transform:SetTwoFaced()
-    local shadow = inst.entity:AddDynamicShadow()
-	shadow:SetSize( 1.75, .75)
+    --inst.Transform:SetTwoFaced()
+    --local shadow = inst.entity:AddDynamicShadow()
+	--shadow:SetSize( 1.75, .75)
     inst.Transform:SetScale(1, 1, 1)
     
     --[[
@@ -39,14 +38,14 @@ local function fn()
     inst.Physics:CollidesWith(COLLISION.WORLD)
     inst.Physics:CollidesWith(COLLISION.ITEMS)
     ]]
-    MakeCharacterPhysics(inst, 200, .3)
+    MakeCharacterPhysics(inst, 300, .3)
     inst.Physics:SetFriction(1)
     inst.Physics:SetDamping(0)
     inst.Physics:SetRestitution(1)
-
-    inst.AnimState:SetBank("maxwell")
-    inst.AnimState:SetBuild("maxwell_build")
-    inst.AnimState:PlayAnimation("idle", true)    
+    
+    inst.AnimState:SetBank("diviningrod")
+    inst.AnimState:SetBuild("diviningrod")
+    inst.AnimState:PlayAnimation("idle_full")    
     
 
 	--inst:AddTag("prototyper")
@@ -59,12 +58,12 @@ local function fn()
     inst:AddComponent("questgiver")
     inst:AddTag("questgiver")
 
-    inst:AddTag("maxy")
-
+    inst:AddTag("rod","diviningrod")
+    
     inst:AddComponent("talker") -- talker always in pristine
     inst.components.talker.fontsize = 30
     inst.components.talker.font = TALKINGFONT
-    inst.components.talker.offset = Vector3(0, -700, 0)
+    inst.components.talker.offset = Vector3(0, -500, 0)
     inst.components.talker.colour = Vector3(0, 0, 0)
     inst.components.talker.ontalk = ontalk
 
@@ -81,10 +80,10 @@ local function fn()
     --inst.components.prototyper.trees = TUNING.PROTOTYPER_TREES.SHOPPING_ONE
 
     local minimap = inst.entity:AddMiniMapEntity()    
-    minimap:SetIcon( "maxy.tex" )
+    minimap:SetIcon( "rod.tex" )
     
     return inst
 end
 
-return Prefab( "common/objects/maxy", fn, assets),
-       MakePlacer( "common/maxy_placer", "maxwell", "maxwell_build", "idle")
+return Prefab( "common/objects/diviningrod", fn, assets),
+       MakePlacer( "common/diviningrod_placer", "diviningrod", "diviningrod", "idle_full")
