@@ -412,6 +412,9 @@ function QuestGiver:Examination(player) -- questgiver should talk about the ques
             end
         end
     end
+    if self.conditionismissing and questname==nil and not next(questkeeper.components.questgiver.questlist) then -- if conditions are missing, do check again now, if conditions are filled now
+        self:StartNextQuest()
+    end
 end
 
 function QuestGiver:CheckQuests()
