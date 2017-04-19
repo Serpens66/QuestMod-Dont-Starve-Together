@@ -211,11 +211,14 @@ end
 local function TriggerReward(inst,player,questname)
     if inst.components.questgiver.queststatus=="finished" then
         inst.components.questgiver.queststatus = "done" -- prevent triggering twice
-        if inst.components.questgiver.onetime then
+        if inst.components.questgiver.onetime and not table.contains(inst.components.questgiver.solvedonetimequests,questname) then
             table.insert(inst.components.questgiver.solvedonetimequests,questname) -- make sure this quest comes not again.
         end
         if not table.contains(inst.components.questgiver.solvedquests,questname) then
             table.insert(inst.components.questgiver.solvedquests,questname) -- to know if condition for a condition quest is met
+        end
+        if inst.components.questgiver.issidequest then -- if it was a sidequest, increase the counter
+            inst.components.questgiver.solvedsidequestsnum = inst.components.questgiver.solvedsidequestsnum + 1 -- everytime you complete it, it is counted
         end
         inst:DoTaskInTime(2,GiveQuestLoot,questname,player)
         inst.components.questgiver.nextquesttask = inst:DoTaskInTime(TUNING.QUEST_NEWONE * TUNING.TOTAL_DAY_TIME + 5,function(inst) inst.components.questgiver:StartNextQuest() end) -- next day there will be the next quest 
@@ -305,8 +308,11 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     self.onetime = nil
     self.solvedonetimequests = {}
     self.solvedquests = {}
+    self.solvedsidequestsnum = 0
     self.periodictimes = 5
     self.periodictask = nil
+    self.issidequest = true
+    self.requiredsidequests = nil
     -- endfn and periodicfn are always functions and therefore can not be saved. only accessable via global QUESTS.
 
     
@@ -427,6 +433,8 @@ function QuestGiver:QuestResett()
     self.customstore = nil
     self.talking = {examine={},solved={},wantskip={},skipped={},orderedstrings=false}
     self.stringindex = 1
+    self.issidequest = true
+    self.requiredsidequests = nil
     self.skippable = true
     self.onetime = nil
     self.periodictimes = 5
@@ -538,10 +546,14 @@ function QuestGiver:OnSave()
     data.animationfn = self.animationfn
     data.customstore = self.customstore
     data.talking = self.talking
+    data.stringindex = self.stringindex
+    data.issidequest = self.issidequest
+    data.requiredsidequests = self.requiredsidequests
     data.skippable = self.skippable
     data.onetime = self.onetime
     data.solvedonetimequests = self.solvedonetimequests
     data.solvedquests = self.solvedquests
+    data.solvedsidequestsnum = self.solvedsidequestsnum
     data.periodictimes = self.periodictimes
     if self.nextquesttask~=nil then 
         data.nextquesttasktimeleft = GetTaskRemaining(self.nextquesttask) -- save the remaining time instead of the task itself
@@ -581,11 +593,14 @@ function QuestGiver:OnLoad(data)
     self.customstore = data and data.customstore or nil
     self.talking = data and data.talking or {examine={},solved={},wantskip={},skipped={},orderedstrings=false}
     self.stringindex = data and data.stringindex or 1
+    self.issidequest = data and data.issidequest or true
+    self.requiredsidequests = data and data.requiredsidequests or nil
     self.skippable = data and data.skippable or true
     self.nextquesttasktimeleft = data and data.nextquesttasktimeleft or nil
     self.onetime = data and data.onetime or nil
     self.solvedonetimequests = data and data.solvedonetimequests or {}
     self.solvedquests = data and data.solvedquests or {}
+    self.solvedsidequestsnum = data and data.solvedsidequestsnum or 0
     self.periodictimes = data and data.periodictimes or 5
     
     for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do -- start period task again
@@ -703,7 +718,8 @@ function QuestGiver:InitializeQuest(quest)
     self.skippable = quest.skippable
     self.onetime = quest.onetime
     self.periodictimes = quest.periodictimes or 5
-    
+    self.stringindex = quest.stringindex
+    self.issidequest = quest.issidequest
     -- self.initfn(self.inst) -- the questgiver
     -- TheWorld:PushEvent("QuestmodEventFn",{func="initfn",giver=self.inst,questname=self.questname})
     
@@ -801,6 +817,9 @@ function QuestGiver:StartNextQuest()
                 end
             end
         end
+        if quest.requiredsidequests and quest.requiredsidequests > self.solvedsidequestsnum then
+            removing = true
+        end
         if removing then
             -- print("HIER should remove "..tostring(quest.questname))
             k = 1
@@ -868,6 +887,9 @@ function QuestGiver:StartNextQuest()
                         adding = true
                     end
                 end
+            end
+            if quest.requiredsidequests and quest.requiredsidequests > self.solvedsidequestsnum then
+                adding = true
             end
             if adding then
                 table.insert(self.questlist,quest)
