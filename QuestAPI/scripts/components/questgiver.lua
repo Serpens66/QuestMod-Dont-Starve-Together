@@ -313,6 +313,7 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     self.periodictask = nil
     self.issidequest = true
     self.requiredsidequests = nil
+    self.conditionismissing = nil
     -- endfn and periodicfn are always functions and therefore can not be saved. only accessable via global QUESTS.
 
     
@@ -368,13 +369,24 @@ function QuestGiver:Examination(player) -- questgiver should talk about the ques
                 str = GetRandomItem(defaultstrings)
             end    
         elseif questname==nil and not next(questkeeper.components.questgiver.questlist) then -- if no quest left (if questloop is active, the questlist won't be empty)
-            str = type(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)])=="table" and next(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)]) and STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT
-            str = GetRandomItem(str)
-            if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
-                questkeeper.components.talker.colour = Vector3(1, 1, 1) 
-                questkeeper["mynetvarQuestsR"]:set(255) 
-                questkeeper["mynetvarQuestsG"]:set(255)
-                questkeeper["mynetvarQuestsB"]:set(255)
+            if self.conditionismissing then -- if more quests will be available after filling custom conditions
+                str = type(STRINGS.QUESTSMOD.MISSINGCONDITION[string.upper(questkeeper.prefab)])=="table" and next(STRINGS.QUESTSMOD.MISSINGCONDITION[string.upper(questkeeper.prefab)]) and STRINGS.QUESTSMOD.MISSINGCONDITION[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.MISSINGCONDITION.DEFAULT
+                str = string.format(GetRandomItem(str))  
+                if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
+                    questkeeper.components.talker.colour = Vector3(1, 1, 1) 
+                    questkeeper["mynetvarQuestsR"]:set(255) 
+                    questkeeper["mynetvarQuestsG"]:set(255)
+                    questkeeper["mynetvarQuestsB"]:set(255)
+                end
+            else -- if there really is no more quest
+                str = type(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)])=="table" and next(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)]) and STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT
+                str = GetRandomItem(str)
+                if questkeeper["mynetvarQuestsR"] and questkeeper["mynetvarQuestsG"] and questkeeper["mynetvarQuestsB"] then -- do not change colour if this is not there, eg for shopkeeper
+                    questkeeper.components.talker.colour = Vector3(1, 1, 1) 
+                    questkeeper["mynetvarQuestsR"]:set(255) 
+                    questkeeper["mynetvarQuestsG"]:set(255)
+                    questkeeper["mynetvarQuestsB"]:set(255)
+                end
             end
         elseif questname==nil and next(questkeeper.components.questgiver.questlist) then -- next quest will start in x days
             local days = 0.001 -- 0 will result in a netagive 0 ...
@@ -555,6 +567,7 @@ function QuestGiver:OnSave()
     data.solvedquests = self.solvedquests
     data.solvedsidequestsnum = self.solvedsidequestsnum
     data.periodictimes = self.periodictimes
+    data.conditionismissing = self.conditionismissing
     if self.nextquesttask~=nil then 
         data.nextquesttasktimeleft = GetTaskRemaining(self.nextquesttask) -- save the remaining time instead of the task itself
     elseif self.nextquesttasktimeleft~=nil then
@@ -598,6 +611,7 @@ function QuestGiver:OnLoad(data)
     self.skippable = data and data.skippable or true
     self.nextquesttasktimeleft = data and data.nextquesttasktimeleft or nil
     self.onetime = data and data.onetime or nil
+    self.conditionismissing = data and data.conditionismissing or nil
     self.solvedonetimequests = data and data.solvedonetimequests or {}
     self.solvedquests = data and data.solvedquests or {}
     self.solvedsidequestsnum = data and data.solvedsidequestsnum or 0
@@ -779,7 +793,7 @@ function QuestGiver:StartNextQuest()
     self.nextquesttasktimeleft = nil
     
     local k = 1
-    for i,name in ipairs(self.solvedonetimequests) do -- if there are onetime quests, remove them form all lists. Do not remove name from solvedonetimequests, cause it could be that the quest is added to QUEST at next gamestart again.
+    for i,name in ipairs(self.solvedonetimequests) do -- if there are onetime quests, remove them from all lists. Do not remove name from solvedonetimequests, cause it could be that the quest is added to QUEST at next gamestart again.
         k = 1
         while k~=#TUNING.QUESTSMOD.QUESTS + 1 do
             if TUNING.QUESTSMOD.QUESTS[k].questname == name and TUNING.QUESTSMOD.QUESTS[k].questgiver==self.inst.prefab then -- only remove it from QUESTS, if this is the questgiver
@@ -808,6 +822,7 @@ function QuestGiver:StartNextQuest()
     
     -- remove quests for that conditions are not fullfilled (and add them at the end of the function again)
     local removing = false
+    local removednum = 0
     for k,quest in pairs(TUNING.QUESTSMOD.QUESTS) do
         removing = false
         if type(quest.conditions)=="table" then
@@ -819,6 +834,9 @@ function QuestGiver:StartNextQuest()
         end
         if quest.requiredsidequests and quest.requiredsidequests > self.solvedsidequestsnum then
             removing = true
+        end
+        if type(quest.customconditionsfn)=="function" then
+            removing = not quest.customconditionsfn() -- if it returns true, do not remove it
         end
         if removing then
             -- print("HIER should remove "..tostring(quest.questname))
@@ -838,6 +856,7 @@ function QuestGiver:StartNextQuest()
                     k = k + 1
                 end
             end
+            removednum = removednum + 1 -- count how many got removed due conditions
         end
     end
             
@@ -875,6 +894,10 @@ function QuestGiver:StartNextQuest()
         end
     end
     
+    if not next(self.questlist) and not next(self.questlistSave) and removednum > 0 then -- if there is no quest choosable at the moment, but after more conditions there will be at least one new availabe, then do check this everytime on examine
+        self.conditionismissing = true
+    end
+    
     
     -- now add the condition quests again, so in case we fullfill the conditions the next time, they can be chosen
     local adding = false
@@ -890,6 +913,9 @@ function QuestGiver:StartNextQuest()
             end
             if quest.requiredsidequests and quest.requiredsidequests > self.solvedsidequestsnum then
                 adding = true
+            end
+            if type(quest.customconditionsfn)=="function" then
+                adding = not quest.customconditionsfn() -- if it returns true, do not add it
             end
             if adding then
                 table.insert(self.questlist,quest)
