@@ -297,7 +297,8 @@ local QuestGiver = Class(function(self, inst, targetmode, target)
     self.rewardfn = nil
     self.animationfn = nil
     self.customstore = nil
-    self.talking = {examine={},solved={},wantskip={},skipped={}}
+    self.talking = {examine={},solved={},wantskip={},skipped={},orderedstrings=false}
+    self.stringindex = 1
     self.skippable = true
     self.nextquesttask = nil
     self.nextquesttasktimeleft = nil
@@ -347,7 +348,19 @@ function QuestGiver:Examination(player) -- questgiver should talk about the ques
     if ((questkeeper.prefab=="pigking" and questkeeper.components.trader:GetDebugString()=="true") or questkeeper.prefab~="pigking") then -- say nothing, if pigking is sleeping
         local str = ""
         if questname~=nil and questkeeper.components.questgiver.queststatus~="finished" then
-            str = GetRandomItem(type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.examine)=="table" and next(questkeeper.components.questgiver.talking.examine) and questkeeper.components.questgiver.talking.examine or defaultstrings)
+            if type(questkeeper.components.questgiver.talking)=="table" and type(questkeeper.components.questgiver.talking.examine)=="table" and next(questkeeper.components.questgiver.talking.examine) then
+                if questkeeper.components.questgiver.talking.orderedstrings then
+                    if self.stringindex > GetTableSize(questkeeper.components.questgiver.talking.examine) then
+                        self.stringindex = 1
+                    end
+                    str = questkeeper.components.questgiver.talking.examine[self.stringindex]
+                    self.stringindex = self.stringindex + 1
+                else
+                    str = GetRandomItem(questkeeper.components.questgiver.talking.examine)
+                end
+            else
+                str = GetRandomItem(defaultstrings)
+            end    
         elseif questname==nil and not next(questkeeper.components.questgiver.questlist) then -- if no quest left (if questloop is active, the questlist won't be empty)
             str = type(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)])=="table" and next(STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)]) and STRINGS.QUESTSMOD.NOMOREQUEST[string.upper(questkeeper.prefab)] or STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT
             str = GetRandomItem(str)
@@ -412,7 +425,8 @@ function QuestGiver:QuestResett()
     self.rewardfn = nil
     self.animationfn = nil
     self.customstore = nil
-    self.talking = {examine={},solved={},wantskip={},skipped={}}
+    self.talking = {examine={},solved={},wantskip={},skipped={},orderedstrings=false}
+    self.stringindex = 1
     self.skippable = true
     self.onetime = nil
     self.periodictimes = 5
@@ -565,7 +579,8 @@ function QuestGiver:OnLoad(data)
     self.rewardfn = data and data.rewardfn or nil
     self.animationfn = data and data.animationfn or nil
     self.customstore = data and data.customstore or nil
-    self.talking = data and data.talking or {examine={},solved={},wantskip={},skipped={}}
+    self.talking = data and data.talking or {examine={},solved={},wantskip={},skipped={},orderedstrings=false}
+    self.stringindex = data and data.stringindex or 1
     self.skippable = data and data.skippable or true
     self.nextquesttasktimeleft = data and data.nextquesttasktimeleft or nil
     self.onetime = data and data.onetime or nil
