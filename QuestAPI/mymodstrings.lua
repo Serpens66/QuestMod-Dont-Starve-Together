@@ -100,6 +100,9 @@ end
 if not GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN then
     GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN = {}
 end
+if not GLOBAL.STRINGS.QUESTSMOD.MISSINGCONDITION then
+    GLOBAL.STRINGS.QUESTSMOD.MISSINGCONDITION = {}
+end
 GLOBAL.STRINGS.QUESTSMOD.NOMOREQUEST.DEFAULT = {"Sorry, I don't have more tasks for you.","That's all, thanks for helping."}
 GLOBAL.STRINGS.QUESTSMOD.NEXTQUESTIN.DEFAULT = {"Come back in %.2f days for a new job.","I'll have another task for you in %.2f days."}
 GLOBAL.STRINGS.QUESTSMOD.MISSINGCONDITION.DEFAULT = {"You do not fullfill requirements to get next quest"}
