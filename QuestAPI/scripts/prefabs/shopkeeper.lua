@@ -3,6 +3,7 @@
 local assets =
 {
     Asset( "ANIM", "anim/shop_basic.zip"),
+    Asset( "ANIM", "anim/shopkeeper_carry.zip"),
     Asset( "IMAGE", "images/map_icons/shopkeepermap.tex" ),
 	Asset( "ATLAS", "images/map_icons/shopkeepermap.xml" ),
 }
