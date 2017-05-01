@@ -6,8 +6,18 @@ local assets =
     Asset( "ANIM", "anim/shopkeeper_carry.zip"),
     Asset( "IMAGE", "images/map_icons/shopkeepermap.tex" ),
 	Asset( "ATLAS", "images/map_icons/shopkeepermap.xml" ),
+    Asset( "INV_IMAGE", "images/map_icons/shopkeepermap.tex"),
 }
 
+
+local function onequip(inst, owner)
+    owner.AnimState:OverrideSymbol("swap_body", "shopkeeper_carry", "swap_body")
+    
+end
+
+local function onunequip(inst, owner)
+    owner.AnimState:ClearOverrideSymbol("swap_body")
+end
 
 local function fn()
     local inst = CreateEntity()
@@ -22,15 +32,14 @@ local function fn()
 	shadow:SetSize( 1.75, .75 )
     
     
-    -- MakeObstaclePhysics(inst, .5)
-    -- inst.Physics:SetCollisionGroup(COLLISION.OBSTACLES)
-    -- inst.Physics:CollidesWith(COLLISION.WORLD)
-    -- inst.Physics:CollidesWith(COLLISION.ITEMS)
-    MakeCharacterPhysics(inst, 200, .3)
-    inst.Physics:SetFriction(1)
-    inst.Physics:SetDamping(0)
-    inst.Physics:SetRestitution(1) -- ?
-
+    -- MakeCharacterPhysics(inst, 200, .3)
+    -- inst.Physics:SetFriction(1)
+    -- inst.Physics:SetDamping(0)
+    -- inst.Physics:SetRestitution(1) -- ?
+    
+    -- MakeHeavyObstaclePhysics(inst, 0.45)
+    MakeSmallHeavyObstaclePhysics(inst, 0.45)
+    
     inst.AnimState:SetBank("shop")
     inst.AnimState:SetBuild("shop_basic")
     inst.AnimState:PlayAnimation("idle", true)    
@@ -43,17 +52,29 @@ local function fn()
     inst:AddTag("shelter") -- give custom speech in modmain
     inst:AddTag("notarget")
     inst:AddTag("shopkeeper")
+    inst:AddTag("heavy")
     
     inst:AddComponent("talker") -- talker always in pristine
     inst.components.talker.fontsize = 30
     inst.components.talker.font = TALKINGFONT
     inst.components.talker.offset = Vector3(0, -680, 0)
-
+    
     inst.entity:SetPristine()
 
     if not TheWorld.ismastersim then
         return inst
     end
+    inst:AddComponent("heavyobstaclephysics")
+    inst.components.heavyobstaclephysics:SetRadius(0.45)
+
+    inst:AddComponent("inventoryitem")
+    inst.components.inventoryitem.cangoincontainer = false
+
+    inst:AddComponent("equippable")
+    inst.components.equippable.equipslot = EQUIPSLOTS.BODY
+    inst.components.equippable:SetOnEquip(onequip)
+    inst.components.equippable:SetOnUnequip(onunequip)
+    inst.components.equippable.walkspeedmult = TUNING.HEAVY_SPEED_MULT
     
     inst:AddComponent("inspectable")
     inst:AddComponent("lootdropper")
