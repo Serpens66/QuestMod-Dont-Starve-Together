@@ -35,7 +35,8 @@ AddNewTechTree("SHOPPING",1) -- add new techtree for the shop thing
 local shoptab = AddRecipeTab("Shop", 979, "images/map_icons/shopicon.xml", "shopicon.tex")	--- don't change the name of the icons! it's cursed...
 
 
-GLOBAL.TUNING.STACK_SIZE_VERYSMALLITEM = 60 -- make coins stackable up to 60. stackable_replica component is replaced to add this value to a local table.
+GLOBAL.TUNING.STACK_SIZE_MYCUSTOMSIZE = GetModConfigData("coinstack") -- make coins stackable up to 100. since this is a new tuning value, it is unaffected by stack size mods
+-- component stackable_replica script is replaced to edit the local variable STACK_SIZES
 
 
 

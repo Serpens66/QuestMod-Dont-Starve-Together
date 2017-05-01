@@ -104,6 +104,28 @@ configuration_options =
 		default = 0.03,
     },
     {
+		name = "coinstack",
+		label = "Coin Stack",
+		hover = "Coin Stack Size?",
+		options = 
+		{
+            {description = "20", data = 20, hover="\n"},
+            {description = "40", data = 40, hover="\n"},
+            {description = "60", data = 60, hover="\n"},
+            {description = "80", data = 80, hover="\n"},
+            {description = "100", data = 100, hover="Default"},
+            {description = "120", data = 120, hover="\n"},
+            {description = "150", data = 150, hover="\n"},
+            {description = "200", data = 200, hover="\n"},
+            {description = "300", data = 300, hover="\n"}, 
+            {description = "500", data = 500, hover="\n"}, 
+            {description = "1000", data = 1000, hover="\n"}, 
+            {description = "2000", data = 2000, hover="\n"}, 
+            {description = "32766", data = 32766, hover="\n"},
+        },
+		default = 100,
+    },
+    {
 		name = "blueprintonly",
 		label = "Blueprint Mode",
 		hover = "No Researchlabs.\nInstead you have to collect blueprints you get by quests.\nFound blueprints became buyable at shopkeeper\nDont change this for a running game.",

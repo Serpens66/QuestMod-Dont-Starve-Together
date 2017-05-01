@@ -3,14 +3,15 @@ local STACK_SIZES =
     TUNING.STACK_SIZE_MEDITEM,
     TUNING.STACK_SIZE_SMALLITEM,
     TUNING.STACK_SIZE_LARGEITEM,
-    TUNING.STACK_SIZE_VERYSMALLITEM,
+    TUNING.STACK_SIZE_MYCUSTOMSIZE,
 }
 local STACK_SIZE_CODES = table.invert(STACK_SIZES)
 
 local Stackable = Class(function(self, inst)
     self.inst = inst
-
-    self._stacksize = net_smallbyte(inst.GUID, "stackable._stacksize", "stacksizedirty")
+    
+    self._stacksize = net_shortint(inst.GUID, "stackable._stacksize", "stacksizedirty")
+    -- self._stacksize = net_smallbyte(inst.GUID, "stackable._stacksize", "stacksizedirty")
     self._maxsize = net_tinybyte(inst.GUID, "stackable._maxsize")
 end)
 
