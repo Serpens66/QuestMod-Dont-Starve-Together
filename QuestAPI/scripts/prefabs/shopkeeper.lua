@@ -6,7 +6,6 @@ local assets =
     Asset( "ANIM", "anim/shopkeeper_carry.zip"),
     Asset( "IMAGE", "images/map_icons/shopkeepermap.tex" ),
 	Asset( "ATLAS", "images/map_icons/shopkeepermap.xml" ),
-    Asset( "INV_IMAGE", "images/map_icons/shopkeepermap.tex"),
 }
 
 
@@ -46,6 +45,8 @@ local function fn()
     
     inst.entity:AddMiniMapEntity()
     inst.MiniMapEntity:SetIcon("shopkeepermap.tex")
+
+
     
 	inst:AddTag("prototyper")
     inst:AddTag("giftmachine")
@@ -69,6 +70,8 @@ local function fn()
 
     inst:AddComponent("inventoryitem")
     inst.components.inventoryitem.cangoincontainer = false
+    inst.components.inventoryitem.imagename = "shopkeepermap"
+    inst.components.inventoryitem.atlasname = "images/map_icons/shopkeepermap.xml"
 
     inst:AddComponent("equippable")
     inst.components.equippable.equipslot = EQUIPSLOTS.BODY
