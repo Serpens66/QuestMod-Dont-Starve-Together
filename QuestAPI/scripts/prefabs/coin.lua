@@ -65,7 +65,7 @@ local function fn(Sim)
 	inst:AddComponent("inspectable")
 	
 	inst:AddComponent("stackable")
-	inst.components.stackable.maxsize = TUNING.STACK_SIZE_VERYSMALLITEM--TUNING.STACK_SIZE_SMALLITEM
+	inst.components.stackable.maxsize = TUNING.STACK_SIZE_MYCUSTOMSIZE--TUNING.STACK_SIZE_SMALLITEM
 
 	inst:AddComponent("inventoryitem")
 	inst.components.inventoryitem.atlasname = "images/slotm_inventory.xml"
