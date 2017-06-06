@@ -31,7 +31,7 @@ local function OnDeployItem(player,data)
     if data and data then 
         local x, y, z = player.Transform:GetWorldPosition()
         local questgivers = TheSim:FindEntities(x, y, z, 100, nil, nil, {"questgiver"}) 
-        if string.match(data.prefab,"wall") then
+        if string.match(data.prefab,"wall") or string.match(data.prefab,"fence") then
             for i,giver in ipairs(questgivers) do
                 if giver.components and giver.components.questgiver and giver.components.questgiver.questname=="BuildWall" then
                     if data.prefab=="wall_hay_item" then
@@ -44,6 +44,8 @@ local function OnDeployItem(player,data)
                         giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 10
                     elseif data.prefab=="wall_moonrock_item" then
                         giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 10
+                    elseif string.match(data.prefab,"fence") then
+                        giver.components.questgiver.questnumberreached = giver.components.questgiver.questnumberreached + 1
                     end
                     -- update strings
                     if GLOBAL.STRINGS.QUESTSMOD[string.upper(giver.components.questgiver.questname)] then
