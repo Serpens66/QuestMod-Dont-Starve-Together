@@ -1,3 +1,14 @@
-be able to "give" things to givers to complete quests
-cave support
-give reward directly to player's inventory, instead of dropping on the ground
+- be able to "give" things to givers to complete quests
+- cave support
+- give reward directly to player's inventory, instead of dropping on the ground
+- if you carry the shopkeeper it is not found when searching for his Tag, so at game start a new one is placed...
+- loadpostpass does not work for things in inventory... maybe better introduce an ID system like in BeefaloBell mod? 
+- make compatible to pigking Boss mod?
+- Improve Hunt-mod? Maybe make it like an arena fight on an generated island ?
+
+- competive quests? if competive quests, then the reward should be placed directly in the players inventory, to prevent other players to pick it up. Code: instead of queststatus=="finished" make it a list with userIDs for every player that solved the quest. The same for reachnumber to count eg the killed mobs seperately for each player. At best use a table with userid as key.
+Even if the setting is set to coop quests, we can use this code. If coop is active, then sum up all reachnumber values from all players, to see if quest is finished. And if any player has finished as queststatus, the quest will be finished for everyone.
+Problem: What about quests that do not use reachnumber. We need a check we can do seperately for each player...
+And there are many more problems with competive quests...
+
+Balancing: Test everything and balance the rewards 
