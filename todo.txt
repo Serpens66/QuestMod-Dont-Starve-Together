@@ -1,5 +1,3 @@
-carryable shopkeepers
 be able to "give" things to givers to complete quests
 cave support
 give reward directly to player's inventory, instead of dropping on the ground
-make coins stack more (since you get so much when completing quests. maybe stack to 100, 256, etc.)
